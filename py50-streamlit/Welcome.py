@@ -4,7 +4,6 @@ from streamlit_activities_menu import get_available_activities, build_activities
 
 st.set_page_config(page_title="py50", page_icon="👋", layout="wide")
 
-
 def run():
     working_directory = os.path.dirname(os.path.abspath(__file__))
 
