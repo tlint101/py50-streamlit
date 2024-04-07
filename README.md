@@ -7,12 +7,11 @@
 ![Static Badge](https://img.shields.io/badge/py50_v1.0.0-13406E)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![DOI](https://zenodo.org/badge/716929963.svg)](https://zenodo.org/doi/10.5281/zenodo.10183912)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.29.0-FF4B4B.svg?style=flat&logo=Streamlit&logoColor=white)](https://py50-app.streamlit.app)
-
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_red.svg)](https://py50-app.streamlit.app) 
 
 ## Summary
 
- [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://py50-app.streamlit.app) The py50-streamlit application can be found here: https://py50-app.streamlit.app 
+The py50-streamlit application can be found here: https://py50-app.streamlit.app 
 
 The aim of this repository is to make py50 more accessible to those who may not be comfortable with coding.
 As such, py50 has been converted into a Streamlit web application.Many of the same functions have been ported
