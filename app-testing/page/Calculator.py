@@ -20,10 +20,10 @@ background-color: transparent;
 """
 st.markdown(links, unsafe_allow_html=True)
 
-
 '''
 Page layout begins below
 '''
+
 tutorial = 'https://github.com/tlint101/py50/blob/main/tutorials/002_absolute_ic50.ipynb'
 datasets = 'https://github.com/tlint101/py50/tree/main/dataset'
 st.markdown('# Calculate Relative and Absolute IC50')
@@ -41,8 +41,13 @@ option = st.radio(
     'Options are paste or .csv file upload',
     ('Paste Data', 'Upload CSV File', 'IC50 to pIC50 Calculator'))
 
+"""
+Code begins below
+"""
+
 calc = Calc_Logic()
 
+# Data input
 if option == 'Upload CSV File':
     # Upload the CSV file
     uploaded_file = st.file_uploader('Upload .csv file')
