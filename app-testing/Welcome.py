@@ -40,4 +40,4 @@ def run():
 if __name__ == '__main__':
     run()
 else:
-    st.error('The app failed initialization. Report issue to maintainers in github')
+    st.error('The app failed initialization. Report issue to maintainers on github')
