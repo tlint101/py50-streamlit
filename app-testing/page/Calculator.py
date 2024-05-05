@@ -55,9 +55,9 @@ if option == 'Upload CSV File':
     # Check if a CSV file has been uploaded
     if uploaded_file is not None:
         # Read the CSV file into a DataFrame
-        drug_query = pd.read_csv(uploaded_file)
+        data = pd.read_csv(uploaded_file)
         st.write('## Input Table')
-        st.data_editor(drug_query, num_rows='dynamic')  # visualize dataframe in streamlit app
+        st.data_editor(data, num_rows='dynamic')  # visualize dataframe in streamlit app
     else:
         # Display a message if no CSV file has been uploaded
         st.warning('Please upload a .csv file.')
@@ -70,9 +70,9 @@ if option == 'Upload CSV File':
 elif option == 'Paste Data':
     st.markdown('### Paste Data in Table:')
     # Make dummy dataframe
-    df = pd.DataFrame([{"Drug Name": '', 'Concentration': '', 'Response': ''}, ])
+    data = pd.DataFrame([{"Drug Name": '', 'Concentration': '', 'Response': ''}, ])
 
-    edited_df = st.data_editor(df, num_rows='dynamic')
+    edited_df = st.data_editor(data, num_rows='dynamic')
 
     if (edited_df == '').all().all():
         st.write('Table is currently empty')
