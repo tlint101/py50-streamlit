@@ -63,7 +63,7 @@ if option == 'Upload CSV File':
 
     # Select columns for calculation
     if uploaded_file is not None:  # nested in if/else to remove initial traceback error
-        stats.stats_program(df=data, paste=False)
+        stats.stats_program(data=data, paste=False)
 
 # Editable DataFrame
 elif option == 'Paste Data':
@@ -76,8 +76,9 @@ elif option == 'Paste Data':
     if (edited_df == '').all().all():
         st.write('Table is currently empty')
     else:
-        stats.stats_program(df=edited_df, paste=True)
+        stats.stats_program(data=edited_df, paste=True)
 
-    # Output table
-    edited_df = st.data_editor(data, num_rows='dynamic')
-    stats.download_button(edited_df, file_name='py50_stats.csv')
+    # todo check why this should up twice?
+    # # Output table
+    # edited_df = st.data_editor(data, num_rows='dynamic')
+    # stats.download_button(edited_df, file_name='py50_stats.csv')
