@@ -64,7 +64,7 @@ if option == 'Upload CSV File':
 
     # Select columns for calculation
     if uploaded_file is not None:  # nested in if/else to remove initial traceback error
-        calc.calculator_program(df=drug_query, paste=False)
+        calc.calculator_program(df=data, paste=False)
 
 # Editable DataFrame
 elif option == 'Paste Data':
