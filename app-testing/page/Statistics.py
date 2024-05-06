@@ -71,7 +71,7 @@ elif option == 'Paste Data':
     # Make dummy dataframe
     data = pd.DataFrame([{"Group": '', 'Dependent Variable': '', 'Subgroup': ''}, ])
 
-    edited_df = st.data_editor(data, num_rows='dynamic', key='stats1')
+    edited_df = st.data_editor(data, num_rows='dynamic', key='paste_data')
 
     if (edited_df == '').all().all():
         st.write('Table is currently empty')
@@ -79,5 +79,5 @@ elif option == 'Paste Data':
         stats.stats_program(df=edited_df, paste=True)
 
     # Output table
-    edited_df = st.data_editor(data, num_rows='dynamic', key='stats2')
+    edited_df = st.data_editor(data, num_rows='dynamic')
     stats.download_button(edited_df, file_name='py50_stats.csv')
