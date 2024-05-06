@@ -20,7 +20,7 @@ over to the application.
 For anyone interested with the specifics of the py50 code, the repository can be found here.
 
 **NOTE:** It takes more time for me to update the py50-streamlit. As such, more features and updates will be implemented 
-with the Python bindings before the web application. for those interested with updates and features, please follow the 
+with the Python bindings before the web application. For those interested with updates and features, please follow the 
 main py50 repository [here](https://github.com/tlint101/py50).
 
 ## Future Work
