@@ -37,6 +37,7 @@ class Stats_Logic:
 
             # Set selection columns
             col1, col2, col3 = st.columns(3)
+
             col_header.insert(0, 'None')  # Add None option
             with col1:
                 group_col = st.selectbox('Group:', col_header, index=1)
@@ -50,6 +51,7 @@ class Stats_Logic:
 
             # Set selection columns
             col1, col2, col3 = st.columns(3)
+
             col_header.insert(0, 'None')  # Add None option
             with col1:
                 group_col = st.selectbox('Group:', col_header, index=None, placeholder="Select Group")
@@ -63,22 +65,44 @@ class Stats_Logic:
         # Select columns
         self.column_selection(data, dv_col, group_col, subgroup_col, paste)
 
-        # run_normality()
+        # run_normality
+        self.run_normality(dv_col, group_col, selected)
 
+    def run_normality(self, dv_col, group_col, selected):
+        """
+        Function to run normality test.
+        :param dv_col:
+        :param group_col:
+        :param selected:
+        :return:
+        """
         st.write('## Test for Normality?')
         normality = st.toggle('Test for Normality')
         stats = Stats(selected)
-
         if normality:
-            normality = stats.get_normality(value_col=dv_col, group_col=group_col).round(3)
-            st.write('**Note:** Check mark means True')
+            col1, col2 = st.columns(2)
 
-            st.data_editor(normality, num_rows='dynamic')
-            self.download_button(normality, index=True, file_name='py50_normality.csv')
-        else:
-            st.write('# NOTHING IS HAPPENING!!!')
+            with col1:
+                normality = stats.get_normality(value_col=dv_col, group_col=group_col).round(3)
+                st.write('**Note:** Check mark means True')
+
+                st.data_editor(normality, num_rows='dynamic')
+                self.download_button(normality, index=True, file_name='py50_normality.csv')
+
+            with col2:
+                normality_plot = st.toggle('Plot for Normality')
+                st.write('PLACEHOLDER')
 
     def column_selection(self, data, dv_col, group_col, subgroup_col, paste):
+        """
+        Function to select columns for statistics calculator.
+        :param data:
+        :param dv_col:
+        :param group_col:
+        :param subgroup_col:
+        :param paste:
+        :return:
+        """
         global select, selected
         # Conditional after selecting columns for calculation
         if group_col is not None and dv_col is not None:
