@@ -61,15 +61,15 @@ class Stats_Logic:
                                             placeholder="Select Subgroup")  # Index to auto select column
 
         # Select columns
-        self.column_selection(data, dv_col, group_col, subgroup_col)
+        self.column_selection(data, dv_col, group_col, subgroup_col, paste)
 
         # run_normality()
 
         st.write('## Test for Normality?')
         normality = st.toggle('Test for Normality')
+        stats = Stats(selected)
 
         if normality:
-            stats = Stats(selected)
             normality = stats.get_normality(value_col=dv_col, group_col=group_col).round(3)
             st.write('**Note:** Check mark means True')
 
@@ -78,7 +78,7 @@ class Stats_Logic:
         else:
             st.write('# NOTHING IS HAPPENING!!!')
 
-    def column_selection(self, data, dv_col, group_col, subgroup_col):
+    def column_selection(self, data, dv_col, group_col, subgroup_col, paste):
         global select, selected
         # Conditional after selecting columns for calculation
         if group_col is not None and dv_col is not None:
@@ -87,9 +87,10 @@ class Stats_Logic:
             selected = select[[group_col, dv_col]]
             st.write(selected)
 
-            # Pasting data does not ensure correct format. Must enforce!
-            selected['Group'] = select['Group'].astype(str)
-            selected['Dependent Variable'] = select['Dependent Variable'].astype(float)
+            if paste:
+                # Pasting data does not ensure correct format. Must enforce!
+                selected['Group'] = select['Group'].astype(str)
+                selected['Dependent Variable'] = select['Dependent Variable'].astype(float)
 
         elif subgroup_col == None:
             st.write('Current Selection')
