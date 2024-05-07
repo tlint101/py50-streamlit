@@ -4,6 +4,7 @@ Functions for statistics.
 
 import streamlit as st
 import pandas as pd
+import io
 from matplotlib import pyplot as plt
 from py50.stats import Plots, Stats
 
@@ -21,6 +22,15 @@ class Stats_Logic:
         csv = df.to_csv(index=index).encode('utf-8')
         st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
 
+    def download_fig(self, fig, file_name):
+        # Figure must be converted into a temporary file in memory
+        buf = io.BytesIO()
+        # plt.savefig(buf, format='png', dpi=300)
+        fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
+        buf.seek(0)
+
+        # Create a download button
+        st.download_button("Download Figure", data=buf.read(), file_name=file_name, mime="image/png")
 
     def stats_program(self, data: pd.DataFrame = None, paste: bool = False):
         """
