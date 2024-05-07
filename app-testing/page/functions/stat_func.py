@@ -17,9 +17,10 @@ class Stats_Logic:
     def __init__(self):
         pass
 
-    def download_button(self, df, file_name=None, index=False):
+    def download_csv(self, df, file_name=None, index=False):
         csv = df.to_csv(index=index).encode('utf-8')
         st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
+
 
     def stats_program(self, data: pd.DataFrame = None, paste: bool = False):
         """
@@ -78,7 +79,11 @@ class Stats_Logic:
         """
         st.write('## Test for Normality?')
         normality = st.toggle('Test for Normality')
+
+        # Initialize py50
         stats = Stats(selected)
+        plots = Plots(selected)
+
         if normality:
             col1, col2 = st.columns(2)
 
@@ -87,11 +92,22 @@ class Stats_Logic:
                 st.write('**Note:** Check mark means True')
 
                 st.data_editor(normality, num_rows='dynamic')
-                self.download_button(normality, index=True, file_name='py50_normality.csv')
+                self.download_csv(normality, index=True, file_name='py50_normality.csv')
 
             with col2:
                 normality_plot = st.toggle('Plot for Normality')
-                st.write('PLACEHOLDER')
+                if normality_plot:
+                    # create subplot grid
+                    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
+                    plots.distribution(val_col='Pain threshold', type='histplot', ax=ax1)
+                    plots.distribution(val_col='Pain threshold', type='qqplot', ax=ax2)
+
+                    # Adding titles to subplots
+                    ax1.set_title('Histogram Plot')
+                    ax2.set_title('QQ Plot')
+
+                    st.pyplot(fig)
+                    self.download_fig(fig=fig, file_name="normality.png")
 
     def column_selection(self, data, dv_col, group_col, subgroup_col, paste):
         """
