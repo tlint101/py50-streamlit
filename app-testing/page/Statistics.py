@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from page.functions.stat_func import Stats
+from page.functions.stat_func import Stats_Logic
 
 # # Set page config
 # st.set_page_config(page_title='py50: Plot Curves', page_icon='📈', layout='centered')
@@ -44,7 +44,7 @@ option = st.radio(
 Code begins below
 """
 
-stats = Stats()
+stats = Stats_Logic()
 
 # Data input
 if option == 'Upload CSV File':
@@ -63,6 +63,7 @@ if option == 'Upload CSV File':
 
     # Select columns for calculation
     if uploaded_file is not None:  # nested in if/else to remove initial traceback error
+        st.write("### Select Columns for Calculation")
         stats.stats_program(data=data, paste=False)
 
 # Editable DataFrame
@@ -76,6 +77,7 @@ elif option == 'Paste Data':
     if (edited_df == '').all().all():
         st.write('Table is currently empty')
     else:
+        st.write("### Select Columns for Calculation")
         stats.stats_program(data=edited_df, paste=True)
 
     # todo check why this should up twice?
