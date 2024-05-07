@@ -71,7 +71,7 @@ if option == "Upload CSV File":
 
     # Select columns for calculation
     if uploaded_file is not None:  # nested in if/else to remove initial traceback error
-        st.write("## Select Columns for Calculation")
+        st.write("### Select Columns for Calculation")
         program.plot_program(df=df, paste=False)
 
 # Editable DataFrame
@@ -89,4 +89,5 @@ elif option == "Paste Data":
     if (edited_df == "").all().all():
         st.write("Table is currently empty")
     else:
+        st.write("### Select Columns for Calculation")
         program.plot_program(df=edited_df, paste=True)
