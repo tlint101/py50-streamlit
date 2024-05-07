@@ -17,8 +17,8 @@ class Stats_Logic:
     def __init__(self):
         pass
 
-    def download_button(self, df, file_name=None):
-        csv = df.to_csv(index=False).encode('utf-8')
+    def download_button(self, df, file_name=None, index=False):
+        csv = df.to_csv(index=index).encode('utf-8')
         st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
 
     def stats_program(self, data: pd.DataFrame = None, paste: bool = False):
@@ -26,68 +26,86 @@ class Stats_Logic:
         Function for statistics.
         :param data: pd.DataFrame
             Input pd.DataFrame
+        :param paste: bool
+            To determine if the stats program will be pasted or uploaded data.
         :return: editable DataFrame
         """
 
+        global select, selected
         if paste:
-            data = data.copy()
             col_header = data.columns.tolist()
 
             # Set selection columns
             col1, col2, col3 = st.columns(3)
             col_header.insert(0, 'None')  # Add None option
             with col1:
-                group_col = st.selectbox('Group:', (col_header), index=1)
+                group_col = st.selectbox('Group:', col_header, index=1)
             with col2:
-                dv_col = st.selectbox('Dependent Variable:', (col_header), index=2)  # Index to auto select column
+                dv_col = st.selectbox('Dependent Variable:', col_header, index=2)  # Index to auto select column
             with col3:
-                subgroup_col = st.selectbox('Subgroup (Optional):', (col_header), index=0,
+                subgroup_col = st.selectbox('Subgroup (Optional):', col_header, index=0,
                                             placeholder="None")  # Index to auto select column
         else:
-            data = data.copy()
             col_header = data.columns.tolist()
 
             # Set selection columns
             col1, col2, col3 = st.columns(3)
             col_header.insert(0, 'None')  # Add None option
             with col1:
-                group_col = st.selectbox('Group:', (col_header), index=None, placeholder="Select Group")
+                group_col = st.selectbox('Group:', col_header, index=None, placeholder="Select Group")
             with col2:
-                dv_col = st.selectbox('Dependent Variable:', (col_header), index=None,
+                dv_col = st.selectbox('Dependent Variable:', col_header, index=None,
                                       placeholder="Select DV")  # Index to auto select column
             with col3:
-                subgroup_col = st.selectbox('Subgroup (Optional):', (col_header), index=None,
+                subgroup_col = st.selectbox('Subgroup (Optional):', col_header, index=None,
                                             placeholder="Select Subgroup")  # Index to auto select column
 
-        # Conditional after selecting columns for calculation
-        if subgroup_col == "Group" and subgroup_col == "Dependent Variable" and subgroup_col == None:
-            st.write("HELLO!")
-            st.write(data)
-        elif subgroup_col == None:
-            st.write(data)
-        elif subgroup_col == "None":
-            st.write("Subgroup column set to None")
-            st.write(data)
+        # Select columns
+        self.column_selection(data, dv_col, group_col, subgroup_col)
 
-        if data.isnull().all().any():
-            # Drop columns where all values are NaN
-            data = data.drop(columns='Subgroup')
-            # data.dropna(axis=1, how='all', inplace=True)
-            st.write("there's null?")
-
-        # st.write(data)
-        # plot = Plots(data)
-        stats = Stats(data)
+        # run_normality()
 
         st.write('## Test for Normality?')
         normality = st.toggle('Test for Normality')
 
         if normality:
-
+            stats = Stats(selected)
             normality = stats.get_normality(value_col=dv_col, group_col=group_col).round(3)
             st.write('**Note:** Check mark means True')
 
             st.data_editor(normality, num_rows='dynamic')
-            self.download_button(normality, 'py50_normality.csv')
+            self.download_button(normality, index=True, file_name='py50_normality.csv')
         else:
             st.write('# NOTHING IS HAPPENING!!!')
+
+    def column_selection(self, data, dv_col, group_col, subgroup_col):
+        global select, selected
+        # Conditional after selecting columns for calculation
+        if group_col is not None and dv_col is not None:
+            st.write('Current Selection')
+            select = data.copy()
+            selected = select[[group_col, dv_col]]
+            st.write(selected)
+
+            # Pasting data does not ensure correct format. Must enforce!
+            selected['Group'] = select['Group'].astype(str)
+            selected['Dependent Variable'] = select['Dependent Variable'].astype(float)
+
+        elif subgroup_col == None:
+            st.write('Current Selection')
+            selected = data.copy()
+
+            # Pasting data does not ensure correct format. Must enforce!
+            selected['Group'] = selected['Group'].astype(str)
+            selected['Dependent Variable'] = selected['Dependent Variable'].astype(float)
+
+        elif subgroup_col == "None":
+            st.write("Subgroup column set to None")
+            select = data.copy()
+            selected = select.drop(columns=['Subgroup'])
+
+            # Pasting data does not ensure correct format. Must enforce!
+            selected['Group'] = selected['Group'].astype(str)
+            selected['Dependent Variable'] = selected['Dependent Variable'].astype(float)
+#
+# def run_normality(data, group_col, dv_col):
