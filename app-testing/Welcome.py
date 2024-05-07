@@ -8,6 +8,7 @@ st.set_page_config(
     layout='wide'
 )
 
+
 def run():
     working_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,6 +37,7 @@ def run():
         st.sidebar.markdown(":green[**Select page above to get started!**]")
     else:
         pass
+
 
 if __name__ == '__main__':
     run()
