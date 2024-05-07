@@ -17,7 +17,9 @@ class Stats_Logic:
     def __init__(self):
         pass
 
-
+    def download_button(self, df, file_name=None):
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
 
     def stats_program(self, data: pd.DataFrame = None, paste: bool = False):
         """
@@ -85,7 +87,7 @@ class Stats_Logic:
             normality = stats.get_normality(value_col=dv_col, group_col=group_col).round(3)
             st.write('**Note:** Check mark means True')
 
-            st.write(normality, num_rows='dynamic')
+            st.data_editor(normality, num_rows='dynamic')
             self.download_button(normality, 'py50_normality.csv')
         else:
             st.write('# NOTHING IS HAPPENING!!!')
