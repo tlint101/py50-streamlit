@@ -133,12 +133,13 @@ class Stats_Logic:
             stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
         elif test == 'Cochran (non-parametric)':
             if subgroup_col is None:
-                stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col)
+                st.write(":red[Cochran Test requires a subgroup column!]")
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
         elif test == 'Friedman (non-parametric)':
             if subgroup_col is None:
-                stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
+                st.write(":red[Friedman Test requires a subgroup column!]")
+                # stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
 
