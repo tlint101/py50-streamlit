@@ -49,7 +49,7 @@ class Stats_Logic:
         :return: editable DataFrame
         """
 
-        global select, selected_data
+        global select, selected_data, test
         if paste:
             col_header = data.columns.tolist()
 
@@ -107,14 +107,18 @@ class Stats_Logic:
 
             post_hoc_result = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
-            # plot = st.toggle('Plot Test?')
-            # if plot:
-            #     fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
-            #
-            #     fig = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
-            #
-            #     st.pyplot(fig)
-            #     self.download_fig(fig, file_name='py50_stat_plot.png')
+        # Plot post-hoc results
+        plot = st.toggle('Plot Test?')
+        if plot:
+            fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
+
+            fig = self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+
+            st.pyplot(fig)
+            self.download_fig(fig, file_name='py50_stat_plot.png')
+
+    def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
+        pass
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
