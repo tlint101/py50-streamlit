@@ -81,10 +81,10 @@ class Stats_Logic:
 
         # Run omnibus tests
         omnibus = st.toggle('Omnibus Tests')
-        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (non-parametric)', 'Cochran (non-parametric)',
-                         'Friedman (non-parametric)']
+        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (Non-Parametric)', 'Cochran (Non-Parametric)',
+                         'Friedman (Non-Parametric)']
         if omnibus:
-            test = st.radio(label="Available Omnibus Tests:", options=omnibus_tests)
+            test = st.radio(label="Available Omnibus Test:", options=omnibus_tests, index=None)
 
             # Omnibus test
             self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
@@ -94,7 +94,7 @@ class Stats_Logic:
         post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U', 'Pairwise T-Tests']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         if post_hoc:
-            test = st.radio(label="Available Post-Hoc Tests:", options=post_hoc_tests, captions=captions)
+            test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
@@ -142,6 +142,8 @@ class Stats_Logic:
                 # stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+        else:
+            st.write(":red[Select Omnibus Test]")
 
         st.data_editor(stat_df)
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
