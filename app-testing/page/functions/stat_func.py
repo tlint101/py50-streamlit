@@ -42,7 +42,7 @@ class Stats_Logic:
         :return: editable DataFrame
         """
 
-        global select, selected
+        global select, selected_data
         if paste:
             col_header = data.columns.tolist()
 
@@ -77,20 +77,22 @@ class Stats_Logic:
         self.column_selection(data, dv_col, group_col, subgroup_col, paste)
 
         # run_normality
-        self.run_normality(dv_col, group_col, selected_data=selected)
+        self.run_normality(dv_col, group_col, selected_data=selected_data)
 
         # Run omnibus tests
         omnibus = st.toggle('Omnibus Tests')
-        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Repeated Measures', 'Mixed-ANOVA', 'Kruskal-Wallis (non-parametric)']
+        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Repeated Measures', 'Mixed-ANOVA', 'Kruskal-Wallis (non-parametric)',
+                         'Cochran (non-parametric)', 'Friedman (non-parametric)']
         if omnibus:
             test = st.radio(label="Available Omnibus Tests:", options=omnibus_tests)
 
+            # Omnibus test
+            self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
+
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
-        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U', 'Cochran',
-                          'Friedman', 'Pairwise T-Tests']
-        captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric',
-                    'Non-Parametric', 'Non-Parametric']
+        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U', 'Pairwise T-Tests']
+        captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Tests:", options=post_hoc_tests, captions=captions)
 
@@ -164,34 +166,34 @@ class Stats_Logic:
         :param paste:
         :return:
         """
-        global select, selected
+        global select, selected_data
         # Conditional after selecting columns for calculation
         if group_col is not None and dv_col is not None:
             st.write('Current Selection')
             select = data.copy()
-            selected = select[[group_col, dv_col]]
-            st.write(selected)
+            selected_data = select[[group_col, dv_col]]
+            st.write(selected_data)
 
             if paste:
                 # Pasting data does not ensure correct format. Must enforce!
-                selected['Group'] = select['Group'].astype(str)
-                selected['Dependent Variable'] = select['Dependent Variable'].astype(float)
+                selected_data['Group'] = select['Group'].astype(str)
+                selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
 
         elif subgroup_col == None:
             st.write('Current Selection')
-            selected = data.copy()
+            selected_data = data.copy()
 
             # Pasting data does not ensure correct format. Must enforce!
-            selected['Group'] = selected['Group'].astype(str)
-            selected['Dependent Variable'] = selected['Dependent Variable'].astype(float)
+            selected_data['Group'] = selected_data['Group'].astype(str)
+            selected_data['Dependent Variable'] = selected_data['Dependent Variable'].astype(float)
 
         elif subgroup_col == "None":
             st.write("Subgroup column set to None")
             select = data.copy()
-            selected = select.drop(columns=['Subgroup'])
+            selected_data = select.drop(columns=['Subgroup'])
 
             # Pasting data does not ensure correct format. Must enforce!
-            selected['Group'] = selected['Group'].astype(str)
-            selected['Dependent Variable'] = selected['Dependent Variable'].astype(float)
+            selected_data['Group'] = selected_data['Group'].astype(str)
+            selected_data['Dependent Variable'] = selected_data['Dependent Variable'].astype(float)
 #
 # def run_normality(data, group_col, dv_col):
