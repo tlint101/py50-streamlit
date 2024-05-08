@@ -81,8 +81,8 @@ class Stats_Logic:
 
         # Run omnibus tests
         omnibus = st.toggle('Omnibus Tests')
-        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Repeated Measures', 'Mixed-ANOVA', 'Kruskal-Wallis (non-parametric)',
-                         'Cochran (non-parametric)', 'Friedman (non-parametric)']
+        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (non-parametric)', 'Cochran (non-parametric)',
+                         'Friedman (non-parametric)']
         if omnibus:
             test = st.radio(label="Available Omnibus Tests:", options=omnibus_tests)
 
@@ -115,17 +115,20 @@ class Stats_Logic:
             stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
         elif test == 'Welch-ANOVA':
             stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
-        elif test == 'Repeated Measures':
-            if subgroup_col is None:
-                stat_df = stats.get_rm_anova(value_col=dv_col, within_subject_col=subgroup_col, subject_col=group_col)
-            else:
-                stat_df = stats.get_rm_anova(value_col=dv_col, subject_col=group_col)
-        elif test == 'Mixed-ANOVA':
-            if subgroup_col is None:
-                stat_df = stats.get_mixed_anova(value_col=dv_col, within_subject_col=subgroup_col,
-                                                subject_col=group_col)
-            else:
-                stat_df = stats.get_mixed_anova(value_col=dv_col, subject_col=group_col)
+
+        # REPEATED MEASURE AND MIXED ANOVA WILL NEED TO BE MODIFIED. MAY NOT USE IN PY50-STREAMLIT!
+        # elif test == 'Repeated Measures':
+        #     if subgroup_col is None:
+        #         stat_df = stats.get_rm_anova(value_col=dv_col, within_subject_col=subgroup_col, subject_col=group_col)
+        #     else:
+        #         stat_df = stats.get_rm_anova(value_col=dv_col, subject_col=group_col)
+        # elif test == 'Mixed-ANOVA':
+        #     if subgroup_col is None:
+        #         stat_df = stats.get_mixed_anova(value_col=dv_col, within_subject_col=subgroup_col,
+        #                                         subject_col=group_col)
+        #     else:
+        #         stat_df = stats.get_mixed_anova(value_col=dv_col, subject_col=group_col)
+
         elif test == 'Kruskal-Wallis (non-parametric)':
             stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
         elif test == 'Cochran (non-parametric)':
