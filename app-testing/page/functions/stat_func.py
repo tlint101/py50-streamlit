@@ -96,6 +96,52 @@ class Stats_Logic:
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Tests:", options=post_hoc_tests, captions=captions)
 
+    def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
+        """
+        Function for Omnibus Tests.
+        :param dv_col:
+        :param group_col:
+        :param subgroup_col:
+        :param selected_data:
+        :param test:
+        :return:
+        """
+        global stat_df
+        # Initialize Stats() class
+        stats = Stats(selected_data)
+
+        # Omnibus test
+        if test == 'ANOVA':
+            stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
+        elif test == 'Welch-ANOVA':
+            stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
+        elif test == 'Repeated Measures':
+            if subgroup_col is None:
+                stat_df = stats.get_rm_anova(value_col=dv_col, within_subject_col=subgroup_col, subject_col=group_col)
+            else:
+                stat_df = stats.get_rm_anova(value_col=dv_col, subject_col=group_col)
+        elif test == 'Mixed-ANOVA':
+            if subgroup_col is None:
+                stat_df = stats.get_mixed_anova(value_col=dv_col, within_subject_col=subgroup_col,
+                                                subject_col=group_col)
+            else:
+                stat_df = stats.get_mixed_anova(value_col=dv_col, subject_col=group_col)
+        elif test == 'Kruskal-Wallis (non-parametric)':
+            stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
+        elif test == 'Cochran (non-parametric)':
+            if subgroup_col is None:
+                stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col)
+            else:
+                stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+        elif test == 'Friedman (non-parametric)':
+            if subgroup_col is None:
+                stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
+            else:
+                stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+
+        st.data_editor(stat_df)
+        self.download_csv(stat_df, file_name=f'py50_{test}.csv')
+
     def run_normality(self, dv_col, group_col, selected_data):
         """
         Function to run normality test.
