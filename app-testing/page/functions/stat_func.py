@@ -219,31 +219,19 @@ class Stats_Logic:
         global select, selected_data
         # Conditional after selecting columns for calculation
         if group_col is not None and dv_col is not None:
-            st.write('Current Selection')
+            st.write('**Current Selection:**')
             select = data.copy()
-            selected_data = select[[group_col, dv_col]]
+
+            if subgroup_col == None:
+                selected_data = select[[group_col, dv_col]]
+            else:
+                selected_data = select[[group_col, dv_col, subgroup_col]]
+
             st.write(selected_data)
 
             if paste:
                 # Pasting data does not ensure correct format. Must enforce!
                 selected_data['Group'] = select['Group'].astype(str)
                 selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
-
-        elif subgroup_col == None:
-            st.write('Current Selection')
-            selected_data = data.copy()
-
-            # Pasting data does not ensure correct format. Must enforce!
-            selected_data['Group'] = selected_data['Group'].astype(str)
-            selected_data['Dependent Variable'] = selected_data['Dependent Variable'].astype(float)
-
-        elif subgroup_col == "None":
-            st.write("Subgroup column set to None")
-            select = data.copy()
-            selected_data = select.drop(columns=['Subgroup'])
-
-            # Pasting data does not ensure correct format. Must enforce!
-            selected_data['Group'] = selected_data['Group'].astype(str)
-            selected_data['Dependent Variable'] = selected_data['Dependent Variable'].astype(float)
-#
-# def run_normality(data, group_col, dv_col):
+        else:
+            st.write('**Current Selection:**')
