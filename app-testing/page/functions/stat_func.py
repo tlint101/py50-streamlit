@@ -96,6 +96,8 @@ class Stats_Logic:
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
+
+
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
         Function for Omnibus Tests.
@@ -112,9 +114,17 @@ class Stats_Logic:
 
         # Omnibus test
         if test == 'ANOVA':
-            stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
+            if subgroup_col == 'None':
+                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
+            else:
+                st.write(":red[Warning: Subgroup Column not used in calculation.]")
+                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
         elif test == 'Welch-ANOVA':
-            stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
+            if subgroup_col == 'None':
+                stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
+            else:
+                st.write(":red[Warning: Subgroup Column not used in calculation.]")
+                stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
 
         # REPEATED MEASURE AND MIXED ANOVA WILL NEED TO BE MODIFIED. MAY NOT USE IN PY50-STREAMLIT!
         # elif test == 'Repeated Measures':
@@ -129,17 +139,22 @@ class Stats_Logic:
         #     else:
         #         stat_df = stats.get_mixed_anova(value_col=dv_col, subject_col=group_col)
 
-        elif test == 'Kruskal-Wallis (non-parametric)':
-            stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
-        elif test == 'Cochran (non-parametric)':
-            if subgroup_col is None:
+        elif test == 'Kruskal-Wallis (Non-Parametric)':
+            if subgroup_col == None:
+                st.write('no subgroup')
+                stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
+            else:
+                st.write(":red[Warning: Subgroup Column not used in calculation.]")
+                stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
+        elif test == 'Cochran (Non-Parametric)':
+            if subgroup_col == None:
                 st.write(":red[Cochran Test requires a subgroup column!]")
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
-        elif test == 'Friedman (non-parametric)':
-            if subgroup_col is None:
+        elif test == 'Friedman (Non-Parametric)':
+            if subgroup_col == None:
                 st.write(":red[Friedman Test requires a subgroup column!]")
-                # stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
+                stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
         else:
