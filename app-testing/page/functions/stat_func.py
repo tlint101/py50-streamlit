@@ -119,26 +119,36 @@ class Stats_Logic:
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
         stats = Stats(selected_data)
+
         if test == 'Tukey':
             stat_df = stats.get_tukey(value_col=dv_col, group_col=group_col)
+
         elif test == 'Games-Howell':
             stat_df = stats.get_gameshowell(value_col=dv_col, group_col=group_col)
+
         # todo fix subgroup_col input
         elif test == "Pairwise T-Tests":
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+
         elif test == "Wilcoxon":
-            if subgroup_col is 'None':
+            if subgroup_col == 'None':
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
-            else:
+            elif subgroup_col:
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+            else:
+                st.warning(
+                    ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+
         elif test == "Mann-Whitney U":
             if subgroup_col is None:
                 stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+
+        # todo this breaks and will not calculate?
         elif test == "Pairwise T-Tests (Non-Parametric)":
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
@@ -179,13 +189,14 @@ class Stats_Logic:
             if subgroup_col == 'None':
                 stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":red[Warning: Subgroup Column not used in calculation.]")
-                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
+                st.write(":red[Warning: Subgroup Column not needed for calculation.]")
+                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col, )
+
         elif test == 'Welch-ANOVA':
             if subgroup_col == 'None':
                 stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":red[Warning: Subgroup Column not used in calculation.]")
+                st.write(":red[Warning: Subgroup Column not used calculation.]")
                 stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
 
         # REPEATED MEASURE AND MIXED ANOVA WILL NEED TO BE MODIFIED. MAY NOT USE IN PY50-STREAMLIT!
@@ -208,11 +219,13 @@ class Stats_Logic:
             else:
                 st.write(":red[Warning: Subgroup Column not used in calculation.]")
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
+
         elif test == 'Cochran (Non-Parametric)':
             if subgroup_col is None:
                 st.write(":red[Cochran Test requires a subgroup column!]")
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+
         elif test == 'Friedman (Non-Parametric)':
             if subgroup_col is None:
                 st.write(":red[Friedman Test requires a subgroup column!]")
