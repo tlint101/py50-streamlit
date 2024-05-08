@@ -10,19 +10,21 @@ from py50.plot_settings import CBMARKERS, CBPALETTE
 
 
 class Plot_Logic:
+    def __init__(self):
+        pass
 
     @staticmethod
     def label_plot_options(
-        self,
-        label_options,
-        plot_title_size,
-        plot_title,
-        font,
-        axis_fontsize,
-        xlabel,
-        ylabel,
-        ymax,
-        ymin,
+            self,
+            label_options,
+            plot_title_size,
+            plot_title,
+            font,
+            axis_fontsize,
+            xlabel,
+            ylabel,
+            ymax,
+            ymin,
     ):
         """
         Function to organize plat label  options
@@ -107,8 +109,7 @@ class Plot_Logic:
             ymin,
         )
 
-    @staticmethod
-    def line_options(line_color_option, line_color, line_width, marker):
+    def line_options(self, line_color_option, line_color, line_width, marker):
         """
         Function for line options
         """
@@ -157,7 +158,6 @@ class Plot_Logic:
 
         return conc_unit, xscale, xscale_ticks
 
-    @staticmethod
     def hline_vline_logic(self, hline, hline_color, vline, vline_color):
         """
         Logic for the hline and vline highlights
@@ -198,8 +198,7 @@ class Plot_Logic:
 
         return hline, hline_color, vline, vline_color
 
-    @staticmethod
-    def legend_logic(legend):
+    def legend_logic(self, legend):
         """
         Logic function for determining the legend location.
         Legend input will be checked with acceptable list from matplotlib.
@@ -235,8 +234,7 @@ class Plot_Logic:
 
         return legend_loc
 
-    @staticmethod
-    def download_button(fig, file_name):
+    def download_button(self, fig, file_name):
         # Figure must be converted into a temporary file in memory
         buf = io.BytesIO()
         # plt.savefig(buf, format='png', dpi=300)
@@ -248,8 +246,7 @@ class Plot_Logic:
             "Download Figure", data=buf.read(), file_name=file_name, mime="image/png"
         )
 
-    @staticmethod
-    def plot_program(df=None, paste=True):
+    def plot_program(self, df=None, paste=True):
         """
         Code for plotting. there are if/else statements nested within depending on the 3 types of plots
         """
@@ -392,7 +389,7 @@ class Plot_Logic:
                 )
 
                 # logic based on line_color_options above
-                line_color, line_width, marker = line_options(
+                line_color, line_width, marker = self.line_options(
                     line_color_option, line_color, line_width, marker
                 )
             else:
@@ -403,14 +400,14 @@ class Plot_Logic:
             # Legend settings
             legend = st.sidebar.checkbox(label="Legend")
             if legend is True:
-                legend_loc = legend_logic(legend)
+                legend_loc = self.legend_logic(legend)
             else:
                 legend_loc = "best"
 
             # xscale settings
             xoptions = st.sidebar.checkbox(label="X Axis Options")
             if xoptions is True:
-                conc_unit, xscale, xscale_ticks = xscale_options(xoptions)
+                conc_unit, xscale, xscale_ticks = self.xscale_options(xoptions)
             else:
                 conc_unit = "µM"
                 xscale = "log"
@@ -451,7 +448,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                        "Y-Axis, input must match x-axis units)",
+                              "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )
@@ -461,7 +458,7 @@ class Plot_Logic:
                     box = False
 
                 # Logic for hline and vline
-                hline, hline_color, vline, vline_color = hline_vline_logic(
+                hline, hline_color, vline, vline_color = self.hline_vline_logic(
                     hline, hline_color, vline, vline_color
                 )
             else:
@@ -530,7 +527,7 @@ class Plot_Logic:
                 st.header("")
 
             # Add download button
-            download_button(fig=figure, file_name="single_curve.png")
+            self.download_button(fig=figure, file_name="single_curve.png")
 
         elif fig_type == "Multi-Curve Plot":
             # Confirm DataFrame only contains multiple drugs
@@ -623,7 +620,7 @@ class Plot_Logic:
             # Legend Settings
             legend = st.sidebar.checkbox(label="Legend")
             if legend is True:
-                legend_loc = legend_logic(legend)
+                legend_loc = self.legend_logic(legend)
             else:
                 legend_loc = "best"
 
@@ -691,7 +688,7 @@ class Plot_Logic:
                     box_intercept = 50
 
                 # Logic for hline and vline
-                hline, hline_color, vline, vline_color = hline_vline_logic(
+                hline, hline_color, vline, vline_color = self.hline_vline_logic(
                     hline, hline_color, vline, vline_color
                 )
             else:
@@ -750,7 +747,7 @@ class Plot_Logic:
                 st.header("")
 
             # Add download button
-            download_button(fig=figure, file_name="multi_curve.png")
+            self.download_button(fig=figure, file_name="multi_curve.png")
 
         # Grid options
         elif fig_type == "Grid Plot":
@@ -903,7 +900,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                        "Y-Axis, input must match x-axis units)",
+                              "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )
@@ -913,7 +910,7 @@ class Plot_Logic:
                     box = False
 
                     # Logic for hline and vline
-                hline, hline_color, vline, vline_color = hline_vline_logic(
+                hline, hline_color, vline, vline_color = self.hline_vline_logic(
                     hline, hline_color, vline, vline_color
                 )
             else:
@@ -973,7 +970,7 @@ class Plot_Logic:
                 st.header("")
 
             # Add download button
-            download_button(fig=figure, file_name="grid_curve.png")
+            self.download_button(fig=figure, file_name="grid_curve.png")
         else:
             st.write(
                 "## :red[**Something is wrong with the app! It is the end of days!!!!**]"
