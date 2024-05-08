@@ -77,22 +77,22 @@ class Stats_Logic:
         self.column_selection(data, dv_col, group_col, subgroup_col, paste)
 
         # run_normality
-        self.run_normality(dv_col, group_col, selected)
+        self.run_normality(dv_col, group_col, selected_data=selected)
 
-    def run_normality(self, dv_col, group_col, selected):
+    def run_normality(self, dv_col, group_col, selected_data):
         """
         Function to run normality test.
         :param dv_col:
         :param group_col:
-        :param selected:
+        :param selected_data:
         :return:
         """
         st.write('## Test for Normality?')
         normality = st.toggle('Test for Normality')
 
         # Initialize py50
-        stats = Stats(selected)
-        plots = Plots(selected)
+        stats = Stats(selected_data)
+        plots = Plots(selected_data)
 
         if normality:
             col1, col2 = st.columns(2)
@@ -107,14 +107,34 @@ class Stats_Logic:
             with col2:
                 normality_plot = st.toggle('Plot for Normality')
                 if normality_plot:
+
+                    # Sub columns for title input
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        hist_title = st.text_input(label='Histogram Title', value=None, placeholder='Hist Plot')
+                    with col2:
+                        qq_title = st.text_input(label='QQ Plot Title', value=None, placeholder='QQ Plot')
+
                     # create subplot grid
                     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
-                    plots.distribution(val_col='Pain threshold', type='histplot', ax=ax1)
-                    plots.distribution(val_col='Pain threshold', type='qqplot', ax=ax2)
+                    plots.distribution(val_col=dv_col, type='histplot', ax=ax1)
+                    plots.distribution(val_col=dv_col, type='qqplot', ax=ax2)
 
-                    # Adding titles to subplots
-                    ax1.set_title('Histogram Plot')
-                    ax2.set_title('QQ Plot')
+                    # Conditionals for plot titles
+                    if hist_title is None and qq_title is None:
+                        ax1.set_title('Hist Plot')
+                        ax2.set_title('QQ Plot')
+
+                    elif hist_title is None and qq_title is not None:
+                        ax1.set_title('Hist Plot')
+                        ax2.set_title(qq_title)
+
+                    elif hist_title is not None and qq_title is None:
+                        ax1.set_title(hist_title)
+                        ax2.set_title('QQ Plot')
+                    else:
+                        ax1.set_title(hist_title)
+                        ax2.set_title(qq_title)
 
                     st.pyplot(fig)
                     self.download_fig(fig=fig, file_name="normality.png")
