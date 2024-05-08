@@ -79,6 +79,21 @@ class Stats_Logic:
         # run_normality
         self.run_normality(dv_col, group_col, selected_data=selected)
 
+        # Run omnibus tests
+        omnibus = st.toggle('Omnibus Tests')
+        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Repeated Measures', 'Mixed-ANOVA', 'Kruskal-Wallis (non-parametric)']
+        if omnibus:
+            test = st.radio(label="Available Omnibus Tests:", options=omnibus_tests)
+
+        # Run post-hoc tests
+        post_hoc = st.toggle('Post-Hoc Tests')
+        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U', 'Cochran',
+                          'Friedman', 'Pairwise T-Tests']
+        captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric',
+                    'Non-Parametric', 'Non-Parametric']
+        if post_hoc:
+            test = st.radio(label="Available Post-Hoc Tests:", options=post_hoc_tests, captions=captions)
+
     def run_normality(self, dv_col, group_col, selected_data):
         """
         Function to run normality test.
