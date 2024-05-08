@@ -18,20 +18,6 @@ class Stats_Logic:
     def __init__(self):
         pass
 
-    def download_csv(self, df, file_name=None, index=False):
-        csv = df.to_csv(index=index).encode('utf-8')
-        st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
-
-    def download_fig(self, fig, file_name):
-        # Figure must be converted into a temporary file in memory
-        buf = io.BytesIO()
-        # plt.savefig(buf, format='png', dpi=300)
-        fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
-        buf.seek(0)
-
-        # Create a download button
-        st.download_button("Download Figure", data=buf.read(), file_name=file_name, mime="image/png")
-
     def stats_program(self, data: pd.DataFrame = None, paste: bool = False):
         """
         Function for statistics.
@@ -95,8 +81,6 @@ class Stats_Logic:
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
-
-
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
@@ -252,3 +236,17 @@ class Stats_Logic:
                 selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
         else:
             st.write('**Current Selection:**')
+
+    def download_csv(self, df, file_name=None, index=False):
+        csv = df.to_csv(index=index).encode('utf-8')
+        st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
+
+    def download_fig(self, fig, file_name):
+        # Figure must be converted into a temporary file in memory
+        buf = io.BytesIO()
+        # plt.savefig(buf, format='png', dpi=300)
+        fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
+        buf.seek(0)
+
+        # Create a download button
+        st.download_button("Download Figure", data=buf.read(), file_name=file_name, mime="image/png")
