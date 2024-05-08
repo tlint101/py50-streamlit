@@ -21,12 +21,12 @@ TEST_LIST = [
     TEST("Pairwise T-Tests (Non-Parametric)", "pairwise-nonparametric")
 ]
 
+
 # Pull test name from namedtuple list
 def get_test(test_name):
     for model in TEST_LIST:
         if test_name == model.test_selection:
             return model.py50_test
-
 
 
 """
@@ -101,18 +101,64 @@ class Stats_Logic:
         post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U',
                           'Pairwise T-Tests (Non-Parametric))']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
+        plot_type = ['Box Plot', 'Bar Plot', 'Violin Plot', 'Swarm Plot', 'Strip Plot', "Boxen Plot"]
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
-            fig = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
+            post_hoc_result = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
-            st.pyplot(fig)
-            self.download_fig(fig, file_name='py50_stat_plot.png')
+            # plot = st.toggle('Plot Test?')
+            # if plot:
+            #     fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
+            #
+            #     fig = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+            #
+            #     st.pyplot(fig)
+            #     self.download_fig(fig, file_name='py50_stat_plot.png')
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
-        plots = Plots(selected_data)
+        global stat_df
+        stats = Stats(selected_data)
+        if test == 'Tukey':
+            stat_df = stats.get_tukey(value_col=dv_col, group_col=group_col)
+        elif test == 'Games-Howell':
+            stat_df = stats.get_gameshowell(value_col=dv_col, group_col=group_col)
+        # todo fix subgroup_col input
+        elif test == "Pairwise T-Tests":
+            if subgroup_col is None:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col)
+            else:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+        elif test == "Wilcoxon":
+            if subgroup_col is 'None':
+                stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
+            else:
+                stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+        elif test == "Mann-Whitney U":
+            if subgroup_col is None:
+                stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col)
+            else:
+                stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+        elif test == "Pairwise T-Tests (Non-Parametric)":
+            if subgroup_col is None:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
+            else:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col,
+                                                   parametric=False)
+        else:
+            st.write(":red[Select Post-Hoc Test]")
 
-        plots.boxplot()
+        st.data_editor(stat_df)
+        self.download_csv(stat_df, file_name=f'py50_{test}.csv')
+
+        # def post_hoc_test(self, dv_col, group_col, subgroup_col, selected_data, test):
+        # get test name
+        test_type = get_test(test)
+
+        # if plot_style == 'Box Plot':
+        #     fig = plots.boxplot(test=test_type, group_col=group_col, subgroup_col=subgroup_col,)
+
+        # return fig
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
@@ -163,12 +209,12 @@ class Stats_Logic:
                 st.write(":red[Warning: Subgroup Column not used in calculation.]")
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
         elif test == 'Cochran (Non-Parametric)':
-            if subgroup_col == None:
+            if subgroup_col is None:
                 st.write(":red[Cochran Test requires a subgroup column!]")
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
         elif test == 'Friedman (Non-Parametric)':
-            if subgroup_col == None:
+            if subgroup_col is None:
                 st.write(":red[Friedman Test requires a subgroup column!]")
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
             else:
