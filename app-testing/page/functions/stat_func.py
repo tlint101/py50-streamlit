@@ -4,9 +4,30 @@ Functions for statistics.
 
 import streamlit as st
 import pandas as pd
+from collections import namedtuple
 import io
 from matplotlib import pyplot as plt
 from py50.stats import Plots, Stats
+
+# namedtuple to extract test for plotting
+TEST = namedtuple("STAT_TEST", ["test_selection", "py50_test"])
+
+TEST_LIST = [
+    TEST('Tukey', "tukey"),
+    TEST("Games-Howell", "gameshowell"),
+    TEST("Pairwise T-Tests", 'pairwise-parametric'),
+    TEST("Wilcoxon", "wilcoxon"),
+    TEST("Mann-Whitney U", "mannu"),
+    TEST("Pairwise T-Tests (Non-Parametric)", "pairwise-nonparametric")
+]
+
+# Pull test name from namedtuple list
+def get_test(test_name):
+    for model in TEST_LIST:
+        if test_name == model.test_selection:
+            return model.py50_test
+
+
 
 """
 NOTE: Classes for Plots and Stats should be initialized AFTER processing the data.
@@ -77,10 +98,21 @@ class Stats_Logic:
 
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
-        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U', 'Pairwise T-Tests']
+        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U',
+                          'Pairwise T-Tests (Non-Parametric))']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
+
+            fig = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
+
+            st.pyplot(fig)
+            self.download_fig(fig, file_name='py50_stat_plot.png')
+
+    def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
+        plots = Plots(selected_data)
+
+        plots.boxplot()
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
