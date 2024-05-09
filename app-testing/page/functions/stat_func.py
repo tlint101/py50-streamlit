@@ -7,18 +7,19 @@ import pandas as pd
 from collections import namedtuple
 import io
 from matplotlib import pyplot as plt
+import seaborn as sns
 from py50.stats import Plots, Stats
 
 # namedtuple to extract test for plotting
-TEST = namedtuple("STAT_TEST", ["test_selection", "py50_test"])
+MODEL = namedtuple("STAT_TEST", ["test_selection", "py50_test"])
 
 TEST_LIST = [
-    TEST('Tukey', "tukey"),
-    TEST("Games-Howell", "gameshowell"),
-    TEST("Pairwise T-Tests", 'pairwise-parametric'),
-    TEST("Wilcoxon", "wilcoxon"),
-    TEST("Pairwise Mann-Whitney U", "mannu"),
-    TEST("Pairwise T-Tests (Non-Parametric)", "pairwise-nonparametric")
+    MODEL('Tukey', "tukey"),
+    MODEL("Games-Howell", "gameshowell"),
+    MODEL("Pairwise T-Tests", 'pairwise-parametric'),
+    MODEL("Wilcoxon", "wilcoxon"),
+    MODEL("Pairwise Mann-Whitney U", "mannu"),
+    MODEL("Pairwise T-Tests (Non-Parametric)", "pairwise-nonparametric")
 ]
 
 
@@ -118,17 +119,20 @@ class Stats_Logic:
         plot = Plots(selected_data)
         test_type = get_test(test)
 
-        fig = plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
+        # must call ax. Thus, will need to plot "twice".
+        ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col])
+
+        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
 
-        fig_width = st.sidebar.slider(
-            label="Figure Width:", min_value=1, max_value=50, value=6
-        )
-        fig_height = st.sidebar.slider(
-            label="Figure Height:", min_value=1, max_value=50, value=4
-        )
+
+        # Modify plot
+        fig.set_size_inches(10, 6)  # Set the size of the figure
+        ax.set_title("Boxplot of Total Bill by Day", fontsize=16)  # Set the title of the plot
+        ax.set_xlabel("Day", fontsize=14)  # Set the x-axis label
+        ax.set_ylabel("Total Bill", fontsize=14)  # Set the y-axis label
 
         # Uncomment when finished
         st.pyplot(fig)
