@@ -15,7 +15,7 @@
   url: "Plot_Curves.py"
 
 -
-  name: 'Statistics'
+  name: 'Statistics Calculator'
   description: 'Calculate Statistics From Data'
   url: "Statistics.py"
 
