@@ -117,6 +117,8 @@ class Stats_Logic:
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
         pass
 
+        # test_type = get_test(test)
+
         # Uncomment when finished
         # st.pyplot(fig)
         # self.download_fig(fig, file_name='py50_stat_plot.png')
@@ -145,11 +147,12 @@ class Stats_Logic:
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
                 st.warning(
                     ":red[🚨ERROR: Wilcoxon Test needs a subgroup column]🚨")
-            elif subgroup_col:
+            elif subgroup_col:  # todo need error
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
             else:
                 st.warning(
                     ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                stat_df = None
 
         elif test == "Pairwise Mann-Whitney U":
             if subgroup_col is None:
@@ -162,25 +165,16 @@ class Stats_Logic:
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
             elif subgroup_col:
-                st.warning(f":red[🚨ERROR: Subgroup column not needed for {test}]🚨")
-                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, within_subject_col=subgroup_col,
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col,
                                                    parametric=False)
             else:
                 st.warning(f":red[🚨ERROR: Something wrong with {test}]🚨")
         else:
             st.write(":red[Select Post-Hoc Test]")
 
+        # Output table
         st.data_editor(stat_df)
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
-
-        # def post_hoc_test(self, dv_col, group_col, subgroup_col, selected_data, test):
-        # get test name
-        test_type = get_test(test)
-
-        # if plot_style == 'Box Plot':
-        #     fig = plots.boxplot(test=test_type, group_col=group_col, subgroup_col=subgroup_col,)
-
-        # return fig
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
