@@ -114,8 +114,6 @@ class Stats_Logic:
 
             self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
 
-
-
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
         pass
 
@@ -137,12 +135,16 @@ class Stats_Logic:
         elif test == "Pairwise T-Tests":
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col)
+            elif subgroup_col:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col)
             else:
-                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+                st.warning(f":red[🚨ERROR: Something wrong with {test}]🚨")
 
         elif test == "Wilcoxon":
             if subgroup_col == 'None':
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
+                st.warning(
+                    ":red[🚨ERROR: Wilcoxon Test needs a subgroup column]🚨")
             elif subgroup_col:
                 stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
             else:
@@ -159,9 +161,11 @@ class Stats_Logic:
         elif test == "Pairwise T-Tests (Non-Parametric)":
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
-            else:
-                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col,
+            elif subgroup_col:
+                stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, within_subject_col=subgroup_col,
                                                    parametric=False)
+            else:
+                st.warning(f":red[🚨ERROR: Something wrong with {test}]🚨")
         else:
             st.write(":red[Select Post-Hoc Test]")
 
