@@ -115,12 +115,16 @@ class Stats_Logic:
             self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
 
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
-        pass
+        plot = Plots(selected_data)
+        test_type = get_test(test)
 
-        # test_type = get_test(test)
+        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
+
+        # Get underlying matplotlib figure
+        fig = plt.gcf()
 
         # Uncomment when finished
-        # st.pyplot(fig)
+        st.pyplot(fig)
         # self.download_fig(fig, file_name='py50_stat_plot.png')
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
