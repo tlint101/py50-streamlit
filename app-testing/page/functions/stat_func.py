@@ -17,7 +17,7 @@ TEST_LIST = [
     TEST("Games-Howell", "gameshowell"),
     TEST("Pairwise T-Tests", 'pairwise-parametric'),
     TEST("Wilcoxon", "wilcoxon"),
-    TEST("Mann-Whitney U", "mannu"),
+    TEST("Pairwise Mann-Whitney U", "mannu"),
     TEST("Pairwise T-Tests (Non-Parametric)", "pairwise-nonparametric")
 ]
 
@@ -98,7 +98,7 @@ class Stats_Logic:
 
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
-        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Mann-Whitney U',
+        post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Pairwise Mann-Whitney U',
                           'Pairwise T-Tests (Non-Parametric))']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         plot_type = ['Box Plot', 'Bar Plot', 'Violin Plot', 'Swarm Plot', 'Strip Plot', "Boxen Plot"]
@@ -151,7 +151,7 @@ class Stats_Logic:
                 st.warning(
                     ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
 
-        elif test == "Mann-Whitney U":
+        elif test == "Pairwise Mann-Whitney U":
             if subgroup_col is None:
                 stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col)
             else:
