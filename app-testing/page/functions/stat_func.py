@@ -144,13 +144,22 @@ class Stats_Logic:
 
         elif test == "Wilcoxon":
             if subgroup_col == 'None':
-                stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
-                st.warning(
-                    ":red[🚨ERROR: Wilcoxon Test needs a subgroup column]🚨")
-            elif subgroup_col:  # todo need error
-                stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+                try:
+                    stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
+                    st.warning(":red[🚨ERROR: Wilcoxon Test needs a subgroup column]🚨")
+                except ValueError:
+                    st.error(
+                        ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                    stat_df = None
+            elif subgroup_col:
+                try:
+                    stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
+                except ValueError:
+                    st.error(
+                        ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                    stat_df = None
             else:
-                st.warning(
+                st.error(
                     ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
                 stat_df = None
 
@@ -160,7 +169,6 @@ class Stats_Logic:
             else:
                 stat_df = stats.get_mannu(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
 
-        # todo this breaks and will not calculate?
         elif test == "Pairwise T-Tests (Non-Parametric)":
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
@@ -174,6 +182,8 @@ class Stats_Logic:
 
         # Output table
         st.data_editor(stat_df)
+        st.write(":red[NOTE: ]",
+                 "very small p-values may appear as 0. Please download .csv file to view specific value.")
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
@@ -252,7 +262,7 @@ class Stats_Logic:
         :param selected_data:
         :return:
         """
-        st.write('## Test for Normality?')
+        st.write('## :green[Available Tests]')  # tied to function to appear after data selected
         normality = st.toggle('Test for Normality')
 
         # Initialize py50
@@ -317,7 +327,7 @@ class Stats_Logic:
         global select, selected_data
         # Conditional after selecting columns for calculation
         if group_col is not None and dv_col is not None:
-            st.write('**Current Selection:**')
+            st.write('**Current Data Selection:**')
             select = data.copy()
 
             if subgroup_col == None:
@@ -332,7 +342,7 @@ class Stats_Logic:
                 selected_data['Group'] = select['Group'].astype(str)
                 selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
         else:
-            st.write('**Current Selection:**')
+            st.write('**Current Data Selection:**')
 
     def download_csv(self, df, file_name=None, index=False):
         csv = df.to_csv(index=index).encode('utf-8')
