@@ -118,14 +118,21 @@ class Stats_Logic:
         plot = Plots(selected_data)
         test_type = get_test(test)
 
-        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
+        fig = plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
 
+        fig_width = st.sidebar.slider(
+            label="Figure Width:", min_value=1, max_value=50, value=6
+        )
+        fig_height = st.sidebar.slider(
+            label="Figure Height:", min_value=1, max_value=50, value=4
+        )
+
         # Uncomment when finished
         st.pyplot(fig)
-        # self.download_fig(fig, file_name='py50_stat_plot.png')
+        self.download_fig(fig, file_name='py50_stat_plot.png')
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
@@ -206,14 +213,14 @@ class Stats_Logic:
 
         # Omnibus test
         if test == 'ANOVA':
-            if subgroup_col == 'None':
+            if subgroup_col == None:
                 stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
             else:
                 st.write(":red[Warning: Subgroup Column not needed for calculation.]")
-                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col, )
+                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
 
         elif test == 'Welch-ANOVA':
-            if subgroup_col == 'None':
+            if subgroup_col == None:
                 stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
             else:
                 st.write(":red[Warning: Subgroup Column not used calculation.]")
