@@ -105,20 +105,23 @@ class Stats_Logic:
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
-            post_hoc_result = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
+            self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
         # Plot post-hoc results
         plot = st.toggle('Plot Test?')
         if plot:
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
-            fig = self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+            self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
 
-            st.pyplot(fig)
-            self.download_fig(fig, file_name='py50_stat_plot.png')
+
 
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
         pass
+
+        # Uncomment when finished
+        # st.pyplot(fig)
+        # self.download_fig(fig, file_name='py50_stat_plot.png')
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
