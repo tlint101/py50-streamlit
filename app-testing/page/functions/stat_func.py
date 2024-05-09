@@ -99,7 +99,7 @@ class Stats_Logic:
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
         post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Pairwise Mann-Whitney U',
-                          'Pairwise T-Tests (Non-Parametric))']
+                          'Pairwise T-Tests (Non-Parametric)']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         plot_type = ['Box Plot', 'Bar Plot', 'Violin Plot', 'Swarm Plot', 'Strip Plot', "Boxen Plot"]
         if post_hoc:
@@ -162,6 +162,7 @@ class Stats_Logic:
             if subgroup_col is None:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, parametric=False)
             elif subgroup_col:
+                st.warning(f":red[🚨ERROR: Subgroup column not needed for {test}]🚨")
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, within_subject_col=subgroup_col,
                                                    parametric=False)
             else:
