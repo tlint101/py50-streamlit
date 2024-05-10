@@ -135,6 +135,30 @@ class Stats_Logic:
         else:
             st.error(":red[🚨Please select a post-hoc test type!🚨]")
 
+        # Figure options
+        st.sidebar.subheader("Plot Options")
+
+        with st.sidebar:
+            # Font options
+            font_option = st.toggle(label="Font Options")
+            if font_option:
+                style = st.text_input(label="Font Style", value="DejaVu Sans")
+                title = st.text_input(label='Plot Title', value="Plot Title")
+                x_label = st.text_input(label='Plot X Label', value=group_col)
+                y_label = st.text_input(label='Plot Y Label', value=dv_col)
+                title_fontsize = st.select_slider(label='Title Font Size', options=range(10, 31), value=16)
+                axis_fontsize = st.select_slider(label='Axis Font Size', options=range(10, 31), value=14)
+            else:
+                style = "DejaVu Sans"
+                title = "Plot Title"
+                x_label = group_col
+                y_label = dv_col
+                title_fontsize = 16
+                axis_fontsize = 14
+
+        # Set font type:
+        plt.rcParams['font.family'] = style
+
         # must call ax. Thus, will need to plot "twice".
         ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col])
 
@@ -145,10 +169,9 @@ class Stats_Logic:
 
 
         # Modify plot
-        fig.set_size_inches(10, 6)  # Set the size of the figure
-        ax.set_title("Boxplot of Total Bill by Day", fontsize=16)  # Set the title of the plot
-        ax.set_xlabel("Day", fontsize=14)  # Set the x-axis label
-        ax.set_ylabel("Total Bill", fontsize=14)  # Set the y-axis label
+        ax.set_title(title, fontsize=title_fontsize)
+        ax.set_xlabel(x_label, fontsize=axis_fontsize)
+        ax.set_ylabel(y_label, fontsize=axis_fontsize)
 
         col1, col2 = st.columns(2)
         with col1:
