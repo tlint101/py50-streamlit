@@ -121,11 +121,19 @@ class Stats_Logic:
         if plot:
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
-            self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+            if fig_type:
+                self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+            else:
+                st.write(":red[Please select a plot type]")
 
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
+        global test_type
         plot = Plots(selected_data)
-        test_type = get_test(test)
+
+        if test:
+            test_type = get_test(test)
+        else:
+            st.error(":red[🚨Please select a post-hoc test type!🚨]")
 
         # must call ax. Thus, will need to plot "twice".
         ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col])
@@ -142,9 +150,10 @@ class Stats_Logic:
         ax.set_xlabel("Day", fontsize=14)  # Set the x-axis label
         ax.set_ylabel("Total Bill", fontsize=14)  # Set the y-axis label
 
-        # Uncomment when finished
-        st.pyplot(fig)
-        self.download_fig(fig, file_name='py50_stat_plot.png')
+        col1, col2 = st.columns(2)
+        with col1:
+            st.pyplot(fig)
+            self.download_fig(fig, file_name='py50_stat_plot.png')
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
