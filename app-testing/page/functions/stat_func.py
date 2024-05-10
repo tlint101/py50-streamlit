@@ -95,7 +95,11 @@ class Stats_Logic:
             test = st.radio(label="Available Omnibus Test:", options=omnibus_tests, index=None)
 
             # Omnibus test
-            self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
+            if test is None:
+                st.write(":red[Please select a post-hoc test]")
+            else:
+                self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
+
 
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
@@ -106,7 +110,11 @@ class Stats_Logic:
         if post_hoc:
             test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
-            self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
+            # post-hoc test
+            if test is None:
+                st.write(":red[Please select a post-hoc test]")
+            else:
+                self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
         # Plot post-hoc results
         plot = st.toggle('Plot Test?')
