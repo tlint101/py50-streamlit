@@ -121,10 +121,11 @@ class Stats_Logic:
         if plot:
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
-            if fig_type:
-                self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
-            else:
+            if fig_type is None:
                 st.write(":red[Please select a plot type]")
+            else:
+                self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+
 
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
         global test_type
@@ -156,13 +157,26 @@ class Stats_Logic:
                 title_fontsize = 16
                 axis_fontsize = 14
 
+            # Plot color schemes
+            color_option = st.toggle(label="Color Schemes")
+            if color_option:
+                # todo selectbox for some colors
+                # color = None  # for troubleshooting. this is default. remove later
+                color = st.text_input(label="Color Scheme", value="Default")
+                # Ensure "Default" is the default searborn color scheme
+                if color == "Default":
+                    color = "tab10"
+                # color = st.selectbox()
+            else:
+                color = None
+
         # Set font type:
         plt.rcParams['font.family'] = style
 
         # must call ax. Thus, will need to plot "twice".
         ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col])
 
-        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,)
+        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
@@ -285,7 +299,6 @@ class Stats_Logic:
 
         elif test == 'Kruskal-Wallis (Non-Parametric)':
             if subgroup_col == None:
-                st.write('no subgroup')
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
             else:
                 st.write(":red[Warning: Subgroup Column not used in calculation.]")
@@ -294,6 +307,7 @@ class Stats_Logic:
         elif test == 'Cochran (Non-Parametric)':
             if subgroup_col is None:
                 st.write(":red[Cochran Test requires a subgroup column!]")
+                stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
 
