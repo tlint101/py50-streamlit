@@ -100,7 +100,6 @@ class Stats_Logic:
             else:
                 self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
 
-
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
         post_hoc_tests = ['Tukey', 'Games-Howell', 'Pairwise T-Tests', 'Wilcoxon', 'Pairwise Mann-Whitney U',
@@ -126,7 +125,6 @@ class Stats_Logic:
             else:
                 self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
 
-
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
         global test_type
         plot = Plots(selected_data)
@@ -140,6 +138,13 @@ class Stats_Logic:
         st.sidebar.subheader("Plot Options")
 
         with st.sidebar:
+            # Orientation
+            orientation = st.radio(label="Orientation:", options=['Vertical', 'Horizontal'], index=0)
+            if orientation == 'Horizontal':
+                orientation = "h"
+            elif orientation == 'Vertical':
+                orientation = "v"
+
             # Font options
             font_option = st.toggle(label="Font Options")
             if font_option:
@@ -174,13 +179,16 @@ class Stats_Logic:
         plt.rcParams['font.family'] = style
 
         # must call ax. Thus, will need to plot "twice".
-        ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col])
+        if orientation == 'h':
+            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation)
+        else:
+            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation)
 
-        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,)
+        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
+                     orient=orientation)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
-
 
         # Modify plot
         ax.set_title(title, fontsize=title_fontsize)
