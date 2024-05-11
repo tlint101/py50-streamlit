@@ -170,19 +170,37 @@ class Stats_Logic:
             color_option = st.toggle(label="Color Schemes")
             if color_option:
                 st.write('Color Options:')
-                color1 = st.checkbox(label='Default', value="tab10")
-                color2 = st.checkbox(label='Blues', value="Blues")
-                color3 = st.checkbox(label='Greens', value="Greens")
-                color4 = st.checkbox(label='CoolWarm', value="coolwarm")
-
-
-                color_list = st.text_input(label="Custom Color List", value="Default")
-                # Ensure "Default" is the default searborn color scheme
+                color_options = ['Default', 'Greens', 'Blues', 'autumn', 'gist_earth', 'coolwarm', 'flare', 'icefire',
+                                 'mako', 'Paired', 'Pastel1', 'Pastel2', 'rainbow', 'Spectral', 'twilight', 'vlag']
+                color = st.selectbox(label='Styles', options=color_options, index=0)
                 if color == "Default":
                     color = "tab10"
-                # color = st.selectbox()
+
+                color_option_list = st.checkbox(label='Custom Color Option', value=None)
+
+                if color_option_list:
+                    st.write('Can use hex codes, color names, or color palette (separate by comma)')
+                    st.caption("Example: green, blue, red")
+                    custom_color = st.text_input(label="Custom Color List:", value="Default")
+
+                    # conditional for custom_color list
+                    if custom_color == "":
+                        color = 'tab10'
+                        st.write(f":rainbow[Be sure to give a list of colors!]")
+                    elif custom_color == "Default":
+                        color = 'tab10'
+                    elif ',' not in custom_color:
+                        color = custom_color
+                    # convert into python list and strip space
+                    elif ',' in custom_color:
+                        color = [color.strip() for color in custom_color.split(',')]
+                    else:
+                        st.write(":red[Not a valid color list!]")
             else:
                 color = None
+
+            url = 'https://www.practicalpythonfordatascience.com/ap_seaborn_palette'
+            st.caption("Additional color options can be found [here](%s)" % url)
 
         # Set font type:
         plt.rcParams['font.family'] = style
