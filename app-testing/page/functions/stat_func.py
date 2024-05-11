@@ -116,12 +116,16 @@ class Stats_Logic:
                 self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
         # Plot post-hoc results
-        plot = st.toggle('Plot Test?')
+        plot = st.toggle('Generate Plot')
         if plot:
+            # Warning to select post-hoc test before plot generation
+            if test is None:
+                st.write(":red[Please select a Post-Hoc test!]")
+
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
             if fig_type is None:
-                st.write(":red[Please select a plot type]")
+                st.write(":red[Please select a plot type!]")
             else:
                 self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
 
@@ -165,9 +169,14 @@ class Stats_Logic:
             # Plot color schemes
             color_option = st.toggle(label="Color Schemes")
             if color_option:
-                # todo selectbox for some colors
-                # color = None  # for troubleshooting. this is default. remove later
-                color = st.text_input(label="Color Scheme", value="Default")
+                st.write('Color Options:')
+                color1 = st.checkbox(label='Default', value="tab10")
+                color2 = st.checkbox(label='Blues', value="Blues")
+                color3 = st.checkbox(label='Greens', value="Greens")
+                color4 = st.checkbox(label='CoolWarm', value="coolwarm")
+
+
+                color_list = st.text_input(label="Custom Color List", value="Default")
                 # Ensure "Default" is the default searborn color scheme
                 if color == "Default":
                     color = "tab10"
