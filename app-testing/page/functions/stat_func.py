@@ -183,6 +183,9 @@ class Stats_Logic:
                     st.caption("Example: green, blue, red")
                     custom_color = st.text_input(label="Custom Color List:", value="Default")
 
+                    url = 'https://www.practicalpythonfordatascience.com/ap_seaborn_palette'
+                    st.caption("Additional color options can be found [here](%s)" % url)
+
                     # conditional for custom_color list
                     if custom_color == "":
                         color = 'tab10'
@@ -199,8 +202,8 @@ class Stats_Logic:
             else:
                 color = None
 
-            url = 'https://www.practicalpythonfordatascience.com/ap_seaborn_palette'
-            st.caption("Additional color options can be found [here](%s)" % url)
+            # Annotation Ooptions
+            annotation = st.toggle(label="Plot Annotations")
 
         # Set font type:
         plt.rcParams['font.family'] = style
