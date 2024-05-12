@@ -179,7 +179,7 @@ class Stats_Logic:
                 color_option_list = st.checkbox(label='Custom Color Option', value=None)
 
                 if color_option_list:
-                    st.write('Can use hex codes, color names, or color palette (separate by comma)')
+                    st.write('Can use palette names, or a list of hex codes, color names (separate by comma)')
                     st.caption("Example: green, blue, red")
                     custom_color = st.text_input(label="Custom Color List:", value="Default")
 
@@ -192,9 +192,11 @@ class Stats_Logic:
                         st.write(f":rainbow[Be sure to give a list of colors!]")
                     elif custom_color == "Default":
                         color = 'tab10'
+                    # assume input  is color palette
                     elif ',' not in custom_color:
                         color = custom_color
-                    # convert into python list and strip space
+                        st.write(f":red[input is color palette: {color}]")
+                    # assume input is a list of colors
                     elif ',' in custom_color:
                         color = [color.strip() for color in custom_color.split(',')]
                     else:
@@ -204,6 +206,11 @@ class Stats_Logic:
 
             # Annotation Ooptions
             annotation = st.toggle(label="Plot Annotations")
+
+            if annotation:
+                # # Hide until update py50 with this parameter
+                # st.toggle(label="Hide Significance?")
+                pass
 
         # Set font type:
         plt.rcParams['font.family'] = style
