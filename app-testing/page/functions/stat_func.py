@@ -126,7 +126,6 @@ def _color_option():
 
 
 def _annotation(post_hoc_table, fig_type):
-
     # Set variables so plots will be generated before annotation
     group_order = None
     pairs_select = None
@@ -149,13 +148,13 @@ def _annotation(post_hoc_table, fig_type):
 
         if fig_type == "Swarm Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-            point_size = int(point_size)
+            point_size = point_size
         else:
             point_size = None
 
         if fig_type == "Strip Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-            point_size = int(point_size)
+            point_size = point_size
         else:
             point_size = None
 
@@ -312,7 +311,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if color is None:
             color = "tab10"
 
-        point_size = int(point_size)
+        # point_size = int(point_size)
 
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
@@ -340,6 +339,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             ax = sns.stripplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
                                order=group_order, palette=color, size=point_size)
         else:
+            print("this is the FIRST else:", point_size) # todo something is wrong here? Check order
+            print('this is the order', group_order)
             ax = sns.stripplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
                                order=group_order, palette=color, size=point_size)
 
@@ -349,6 +350,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                            group_order=group_order, size=point_size)
         else:
+            print("This is the else for", point_size)
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, size=point_size)
 
@@ -464,7 +466,7 @@ class Stats_Logic:
 
             # Warning to select post-hoc test before plot generation
             if post_hoc is False:
-                st.write(":red[Select a Post-Hoc test first!]")
+                st.write(":red[🚨Select a Post-Hoc test first‼️]")
 
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
@@ -511,8 +513,6 @@ class Stats_Logic:
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
                        plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size)
 
-
-
         # Modify plot
         ax.set_title(title, fontsize=title_fontsize)
         ax.set_xlabel(x_label, fontsize=axis_fontsize)
@@ -529,6 +529,18 @@ class Stats_Logic:
             fig = plt.gcf()
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
+
+        with col2:
+            if fig:
+                plt.clf()
+                matrix = st.toggle(label='Plot Matrix', value=False)
+                if matrix:
+                    stats = Stats(selected_data)
+                    matrix_pvalues = stats.get_p_matrix(data=post_hoc_table, test=get_test(test))
+                    plots = Plots(matrix_pvalues)
+                    fig = plots.p_matrix()[0]
+
+                    st.pyplot(fig.figure)
 
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
