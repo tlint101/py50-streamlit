@@ -125,7 +125,7 @@ def _color_option():
 
 def _annotation(post_hoc_table, fig_type):
     # Annotation options
-    global group_order, pairs_select, pvalue, legend, location, position, whisker
+    global group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize
     annotation = st.toggle(label="Plot Annotations")
     if annotation:
         # # Hide until update py50 with this parameter
@@ -139,6 +139,26 @@ def _annotation(post_hoc_table, fig_type):
         # Whisker for box plot
         if fig_type == 'Box Plot':
             whisker = st.slider(label="Whisker Length", min_value=0.0, max_value=5.0, value=1.5, step=0.5)
+        else:
+            whisker = None
+
+        # Bar plot error bars
+        if fig_type == 'Bar Plot':
+            bar_type = ['sd', 'se', 'pi', 'ci']
+            types = {'sd': 'Standard Deviation', 'se': 'Standard Deviation', 'pi': 'Pi', 'ci': 'Ci'}
+            bars = st.selectbox(label="Error Bar:", options=bar_type, index=0, key=types)
+
+            capsize = st.slider(label="Cap Size", min_value=0.0, max_value=1.0, value=0.1, step=0.1)
+        else:
+            bars = None
+            capsize = None
+
+        if fig_type == 'Violin Plot':
+            placement = ['inside', 'outside']
+            loc = st.selectbox(label="Annotation Location", options=placement, index=0)
+            st.caption(":red[May Need to Remove Plot Title if Annotations are set to Outside]")
+        else:
+            loc = 'inside'
 
         # pair order
         group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
@@ -203,11 +223,11 @@ def _annotation(post_hoc_table, fig_type):
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type, whisker):
+              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc):
     global ax
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -231,7 +251,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.barplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                             order=group_order)
+                             order=group_order, errorbar=bars, capsize=capsize)
         else:
             ax = sns.barplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
                              order=group_order)
@@ -239,12 +259,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # Conditional to plot figure
         if annotation:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color,
-                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                         group_order=group_order, errorbar=bars, capsize=capsize)
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color,
-                         orient=orientation)
+                         palette=color, orient=orientation)
 
     elif fig_type == 'Violin Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -258,8 +277,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # Conditional to plot figure
         if annotation:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                            palette=color,
-                            orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                            group_order=group_order, loc=loc)
         else:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                             palette=color,
@@ -454,15 +473,16 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker = _annotation(post_hoc_table,
-                                                                                                    fig_type)
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc = _annotation(
+                post_hoc_table,
+                fig_type)
 
         # Set font type:
         plt.rcParams['font.family'] = style
 
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
-                       plot, pvalue, selected_data, subgroup_col, test_type, whisker)
+                       plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
