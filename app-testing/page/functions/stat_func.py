@@ -125,7 +125,7 @@ def _color_option():
 
 def _annotation(post_hoc_table, fig_type):
     # Annotation options
-    global group_order, pairs_select, pvalue, legend, location, position
+    global group_order, pairs_select, pvalue, legend, location, position, whisker
     annotation = st.toggle(label="Plot Annotations")
     if annotation:
         # # Hide until update py50 with this parameter
@@ -135,6 +135,10 @@ def _annotation(post_hoc_table, fig_type):
         #     point_size = st.slider(label="Point Size", min_value=1, max_value=20, value=5)
         # else:
         #     point_size = None
+
+        # Whisker for box plot
+        if fig_type == 'Box Plot':
+            whisker = st.slider(label="Whisker Length", min_value=0.0, max_value=5.0, value=1.5, step=0.5)
 
         # pair order
         group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
@@ -199,30 +203,29 @@ def _annotation(post_hoc_table, fig_type):
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type):
+              pvalue, selected_data, subgroup_col, test_type, whisker):
     global ax
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                             order=group_order)
+                             order=group_order, whis=whisker)
         else:
             ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                             order=group_order)
+                             order=group_order, whis=whisker)
 
         # Conditional to plot figure
         if annotation:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color,
-                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                         group_order=group_order, whis=whisker)
         else:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color,
-                         orient=orientation)
+                         palette=color, orient=orientation)
 
     elif fig_type == 'Bar Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -451,7 +454,7 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position = _annotation(post_hoc_table,
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker = _annotation(post_hoc_table,
                                                                                                     fig_type)
 
         # Set font type:
@@ -459,7 +462,7 @@ class Stats_Logic:
 
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
-                       plot, pvalue, selected_data, subgroup_col, test_type)
+                       plot, pvalue, selected_data, subgroup_col, test_type, whisker)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
