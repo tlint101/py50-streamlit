@@ -50,7 +50,7 @@ class Stats_Logic:
         :return: editable DataFrame
         """
 
-        global select, selected_data, test
+        global select, selected_data, test, post_hoc_table
         if paste:
             col_header = data.columns.tolist()
 
@@ -113,7 +113,7 @@ class Stats_Logic:
             if test is None:
                 st.write(":red[Please select a post-hoc test]")
             else:
-                self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
+                post_hoc_table = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
         # Plot post-hoc results
         plot = st.toggle('Generate Plot')
@@ -127,9 +127,9 @@ class Stats_Logic:
             if fig_type is None:
                 st.write(":red[Please select a plot type!]")
             else:
-                self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type)
+                self.plot(dv_col, group_col, subgroup_col, selected_data, test, fig_type, post_hoc_table)
 
-    def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type):
+    def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type, post_hoc_table):
         global test_type
         plot = Plots(selected_data)
 
@@ -153,14 +153,14 @@ class Stats_Logic:
             font_option = st.toggle(label="Font Options")
             if font_option:
                 style = st.text_input(label="Font Style", value="DejaVu Sans")
-                title = st.text_input(label='Plot Title', value="Plot Title")
+                title = st.text_input(label='Plot Title', value=f"Post Hoc {test} Results")
                 x_label = st.text_input(label='Plot X Label', value=group_col)
                 y_label = st.text_input(label='Plot Y Label', value=dv_col)
                 title_fontsize = st.select_slider(label='Title Font Size', options=range(10, 31), value=16)
                 axis_fontsize = st.select_slider(label='Axis Font Size', options=range(10, 31), value=14)
             else:
                 style = "DejaVu Sans"
-                title = "Plot Title"
+                title = f"Post Hoc {test} Results"
                 x_label = group_col
                 y_label = dv_col
                 title_fontsize = 16
@@ -210,7 +210,19 @@ class Stats_Logic:
             if annotation:
                 # # Hide until update py50 with this parameter
                 # st.toggle(label="Hide Significance?")
-                pass
+
+                # pairs
+                # Generate paairs from table
+                pairs = st.text_input(label='Group Pairs', value="Pairs")
+                st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
+
+                # pvalue
+                pvalue = st.text_input(label='Custom P-value', value="P-value")
+                st.caption("Example: 'p ≤ 0.01', 'p ≤ 0.05', etc")
+
+                if pairs == 'Pairs' and pvalue == 'P-value':
+                    pairs = None
+                    pvalue = None
 
         # Set font type:
         plt.rcParams['font.family'] = style
@@ -221,8 +233,19 @@ class Stats_Logic:
         else:
             ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation)
 
-        plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
-                     orient=orientation)
+        # Conditional to plot figure
+        if annotation is False:
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
+                         orient=orientation)
+        elif pvalue and pairs:
+            pvalue = [value.strip() for value in pvalue.split(',')]
+            print(pvalue)
+
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
+                         orient=orientation, pvalue_label=pvalue, pairs=pairs)
+        else:
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
+                         orient=orientation)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
@@ -299,6 +322,8 @@ class Stats_Logic:
         st.write(":red[NOTE: ]",
                  "very small p-values may appear as 0. Please download .csv file to view specific value.")
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
+
+        return stat_df
 
     def omnibus_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         """
