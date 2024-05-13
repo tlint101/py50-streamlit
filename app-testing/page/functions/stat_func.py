@@ -180,21 +180,24 @@ def _annotation(post_hoc_table, fig_type):
             pvalue = None
 
         # Figure legend options
-        legend = st.toggle(label="Show Legend", value=False)
-        if legend:
-            location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
-                                'center left', 'center right', 'lower center', 'upper center', 'center']
-            location = st.selectbox(label='Location', options=location_options, index=0)
+        if fig_type == 'Swarm Plot' or fig_type == 'Strip Plot':
+            legend = st.toggle(label="Show Legend", value=False)
+            if legend:
+                location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
+                                    'center left', 'center right', 'lower center', 'upper center', 'center']
+                location = st.selectbox(label='Location', options=location_options, index=0)
 
-            # position requires tuple. Split into list then convert as follows
-            position_input = st.text_input(label='Position', value="1, 1")
-            if position_input == "":
-                position = (0, 0)
-            else:
-                input_split = position_input.split(',')
-                position = (float(input_split[0]), int(input_split[1]))
-
-            st.write(position)
+                # position requires tuple. Split into list then convert as follows
+                position_input = st.text_input(label='Position', value="1, 1")
+                if position_input == "":
+                    position = (0, 0)
+                else:
+                    input_split = position_input.split(',')
+                    position = (float(input_split[0]), int(input_split[1]))
+        else:
+            legend = None
+            location = None
+            position = None
 
     return annotation, group_order, pairs_select, pvalue, legend, location, position
 
