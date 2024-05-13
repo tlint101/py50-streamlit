@@ -49,6 +49,8 @@ def column_selection(data, dv_col, group_col, subgroup_col, paste):
 
         if subgroup_col is None:
             selected_data = select[[group_col, dv_col]]
+        elif subgroup_col == 'None':
+            selected_data = select[[group_col, dv_col]]
         else:
             selected_data = select[[group_col, dv_col, subgroup_col]]
 
@@ -125,16 +127,17 @@ def _color_option():
 
 def _annotation(post_hoc_table, fig_type):
     # Annotation options
-    global group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize
+    global group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size
     annotation = st.toggle(label="Plot Annotations")
     if annotation:
-        # # Hide until update py50 with this parameter
-        # st.toggle(label="Hide Significance?")
+        # Hide until update py50 with this parameter
+        ns_group = st.checkbox(label="Hide Groups with No Significance?")
 
-        # if fig_type == "Swarm Plot":
-        #     point_size = st.slider(label="Point Size", min_value=1, max_value=20, value=5)
-        # else:
-        #     point_size = None
+        if fig_type == "Swarm Plot" or "Strip Plot":
+            point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+            point_size = int(point_size)
+        else:
+            point_size = None
 
         # Whisker for box plot
         if fig_type == 'Box Plot':
@@ -196,7 +199,7 @@ def _annotation(post_hoc_table, fig_type):
         if pvalue == 'P-value':
             pairs_select = None
             pvalue = None
-        elif pvalue:
+        elif pvalue is str:
             pvalue = [value.strip() for value in pvalue.split(',')]
         elif pvalue == "":
             pvalue = None
@@ -223,11 +226,11 @@ def _annotation(post_hoc_table, fig_type):
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc):
+              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size):
     global ax
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -288,6 +291,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if color is None:
             color = "tab10"
 
+        point_size = int(point_size)
+
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.swarmplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
@@ -300,10 +305,10 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if annotation:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                           group_order=group_order)
+                           group_order=group_order, size=point_size)
         else:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color, orient=orientation)
+                           palette=color, orient=orientation, size=point_size)
 
     elif fig_type == 'Strip Plot':
         if color is None:
@@ -312,19 +317,19 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.stripplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                               order=group_order, palette=color)
+                               order=group_order, palette=color, size=point_size)
         else:
             ax = sns.stripplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                               order=group_order, palette=color)
+                               order=group_order, palette=color, size=point_size)
 
         # Conditional to plot figure
         if annotation:
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                           group_order=group_order)
+                           group_order=group_order, size=point_size)
         else:
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color, orient=orientation)
+                           palette=color, orient=orientation, size=point_size)
 
     elif fig_type == 'Boxen Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -473,7 +478,7 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc = _annotation(
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size = _annotation(
                 post_hoc_table,
                 fig_type)
 
@@ -482,10 +487,9 @@ class Stats_Logic:
 
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
-                       plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc)
+                       plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size)
 
-        # Get underlying matplotlib figure
-        fig = plt.gcf()
+
 
         # Modify plot
         ax.set_title(title, fontsize=title_fontsize)
@@ -499,6 +503,8 @@ class Stats_Logic:
                 plt.tight_layout()
             else:
                 plt.tight_layout()
+            # Get underlying matplotlib figure
+            fig = plt.gcf()
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
