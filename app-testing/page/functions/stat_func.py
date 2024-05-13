@@ -64,7 +64,7 @@ def column_selection(data, dv_col, group_col, subgroup_col, paste):
         st.write('**Current Data Selection:**')
 
 
-def _font_options(dv_col, group_col, test):
+def _font_options(dv_col, group_col, test, orientation):
     # Font options
     font_option = st.toggle(label="Font Options")
     if font_option:
@@ -77,10 +77,16 @@ def _font_options(dv_col, group_col, test):
     else:
         style = "DejaVu Sans"
         title = f"Post Hoc {test} Results"
-        x_label = group_col
-        y_label = dv_col
         title_fontsize = 16
         axis_fontsize = 14
+        # orientation conditional
+        if orientation == "v":
+            x_label = group_col
+            y_label = dv_col
+        else:
+            x_label = dv_col
+            y_label = group_col
+
     return axis_fontsize, style, title, title_fontsize, x_label, y_label
 
 
@@ -339,7 +345,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             ax = sns.stripplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
                                order=group_order, palette=color, size=point_size)
         else:
-            print("this is the FIRST else:", point_size) # todo something is wrong here? Check order
+            print("this is the FIRST else:", point_size)  # todo something is wrong here? Check order
             print('this is the order', group_order)
             ax = sns.stripplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
                                order=group_order, palette=color, size=point_size)
@@ -496,7 +502,8 @@ class Stats_Logic:
                 orientation = "v"
 
             # font options
-            axis_fontsize, style, title, title_fontsize, x_label, y_label = _font_options(dv_col, group_col, test)
+            axis_fontsize, style, title, title_fontsize, x_label, y_label = _font_options(dv_col, group_col, test,
+                                                                                          orientation)
 
             # color options
             color = _color_option()
@@ -530,6 +537,7 @@ class Stats_Logic:
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
+        # todo add conditions to the matrix
         with col2:
             if fig:
                 plt.clf()
