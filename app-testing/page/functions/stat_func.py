@@ -31,8 +31,153 @@ def get_test(test_name):
             return model.py50_test
 
 
+def column_selection(data, dv_col, group_col, subgroup_col, paste):
+    """
+    Function to select columns for statistics calculator.
+    :param data:
+    :param dv_col:
+    :param group_col:
+    :param subgroup_col:
+    :param paste:
+    :return:
+    """
+    global select, selected_data
+    # Conditional after selecting columns for calculation
+    if group_col is not None and dv_col is not None:
+        st.write('**Current Data Selection:**')
+        select = data.copy()
+
+        if subgroup_col is None:
+            selected_data = select[[group_col, dv_col]]
+        else:
+            selected_data = select[[group_col, dv_col, subgroup_col]]
+
+        st.write(selected_data)
+
+        if paste:
+            # Pasting data does not ensure correct format. Must enforce!
+            selected_data['Group'] = select['Group'].astype(str)
+            selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
+    else:
+        st.write('**Current Data Selection:**')
+
+
+def _font_options(dv_col, group_col, test):
+    # Font options
+    font_option = st.toggle(label="Font Options")
+    if font_option:
+        style = st.text_input(label="Font Style", value="DejaVu Sans")
+        title = st.text_input(label='Plot Title', value=f"Post Hoc {test} Results")
+        x_label = st.text_input(label='Plot X Label', value=group_col)
+        y_label = st.text_input(label='Plot Y Label', value=dv_col)
+        title_fontsize = st.select_slider(label='Title Font Size', options=range(10, 31), value=16)
+        axis_fontsize = st.select_slider(label='Axis Font Size', options=range(10, 31), value=14)
+    else:
+        style = "DejaVu Sans"
+        title = f"Post Hoc {test} Results"
+        x_label = group_col
+        y_label = dv_col
+        title_fontsize = 16
+        axis_fontsize = 14
+    return axis_fontsize, style, title, title_fontsize, x_label, y_label
+
+
+def _color_option():
+    # Plot color schemes
+    color_option = st.toggle(label="Color Schemes")
+    if color_option:
+        st.write('Color Options:')
+        color_options = ['Default', 'Greens', 'Blues', 'autumn', 'gist_earth', 'coolwarm', 'flare', 'icefire',
+                         'mako', 'Paired', 'Pastel1', 'Pastel2', 'rainbow', 'Spectral', 'twilight', 'vlag']
+        color = st.selectbox(label='Styles', options=color_options, index=0)
+        if color == "Default":
+            color = "tab10"
+
+        color_option_list = st.checkbox(label='Custom Color Option', value=None)
+
+        if color_option_list:
+            st.write('Can use palette names, or a list of hex codes, color names (separate by comma)')
+            st.caption("Example: green, blue, red")
+            custom_color = st.text_input(label="Custom Color List:", value="Default")
+
+            url = 'https://www.practicalpythonfordatascience.com/ap_seaborn_palette'
+            st.caption("Additional color options can be found [here](%s)" % url)
+
+            # conditional for custom_color list
+            if custom_color == "":
+                color = 'tab10'
+                st.write(f":rainbow[Be sure to give a list of colors!]")
+            elif custom_color == "Default":
+                color = 'tab10'
+            # assume input  is color palette
+            elif ',' not in custom_color:
+                color = custom_color
+                st.write(f":red[input is color palette: {color}]")
+            # assume input is a list of colors
+            elif ',' in custom_color:
+                color = [color.strip() for color in custom_color.split(',')]
+            else:
+                st.write(":red[Not a valid color list!]")
+    else:
+        color = None
+    return color
+
+
+def _annotation(post_hoc_table):
+    # Annotation options
+    global group_order, pairs_select, pvalue
+    annotation = st.toggle(label="Plot Annotations")
+    if annotation:
+        # # Hide until update py50 with this parameter
+        # st.toggle(label="Hide Significance?")
+
+        # pair order
+        group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
+        st.caption("Note: Be sure to write names exactly as they appear in table!")
+        if group_order == "Group1, Group2, etc":
+            group_order = None
+        elif group_order == "":
+            group_order = None
+        else:
+            group_order = [value.strip() for value in group_order.split(',')]
+            if len(group_order) > len(post_hoc_table):
+                st.warning(":red[🚨Need more groups?🚨]")
+                group_order = None
+            elif len(group_order) < len(post_hoc_table):
+                st.warning(":red[🚨Need less groups?🚨]")
+                group_order = None
+            else:
+                group_order = group_order
+
+        # pairs
+        # Generate pairs from post_hoc_table
+        groups = list(set(post_hoc_table['A'].tolist() + post_hoc_table['B'].tolist()))
+        pairs = [(group1, group2) for group1, group2 in combinations(groups, 2) if group1 != group2]
+
+        # Pair selection. Will return an empty list
+        pairs_select = st.multiselect(label="Group Pairs", options=pairs, placeholder="Select Pairs")
+        st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
+        if not pairs_select:
+            pairs_select = None
+
+        # pvalue
+        pvalue = st.text_input(label='Custom P-Value', value="P-value")
+        st.caption("Example: p ≤ 0.01, p ≤ 0.05, etc")
+
+        if pvalue == 'P-value':
+            pairs_select = None
+            pvalue = None
+        elif pvalue:
+            pvalue = [value.strip() for value in pvalue.split(',')]
+        elif pvalue == "":
+            pvalue = None
+        else:
+            pvalue = None
+    return annotation, group_order, pairs_select, pvalue
+
+
 """
-NOTE: Classes for Plots and Stats should be initialized AFTER processing the data.
+Logic for statistics calculator
 """
 
 
@@ -83,7 +228,7 @@ class Stats_Logic:
                                             placeholder="Select Subgroup")  # Index to auto select column
 
         # Select columns
-        self.column_selection(data, dv_col, group_col, subgroup_col, paste)
+        column_selection(data, dv_col, group_col, subgroup_col, paste)
 
         # run_normality
         self.run_normality(dv_col, group_col, selected_data=selected_data)
@@ -150,108 +295,14 @@ class Stats_Logic:
             elif orientation == 'Vertical':
                 orientation = "v"
 
-            # Font options
-            font_option = st.toggle(label="Font Options")
-            if font_option:
-                style = st.text_input(label="Font Style", value="DejaVu Sans")
-                title = st.text_input(label='Plot Title', value=f"Post Hoc {test} Results")
-                x_label = st.text_input(label='Plot X Label', value=group_col)
-                y_label = st.text_input(label='Plot Y Label', value=dv_col)
-                title_fontsize = st.select_slider(label='Title Font Size', options=range(10, 31), value=16)
-                axis_fontsize = st.select_slider(label='Axis Font Size', options=range(10, 31), value=14)
-            else:
-                style = "DejaVu Sans"
-                title = f"Post Hoc {test} Results"
-                x_label = group_col
-                y_label = dv_col
-                title_fontsize = 16
-                axis_fontsize = 14
+            # font options
+            axis_fontsize, style, title, title_fontsize, x_label, y_label = _font_options(dv_col, group_col, test)
 
-            # Plot color schemes
-            color_option = st.toggle(label="Color Schemes")
-            if color_option:
-                st.write('Color Options:')
-                color_options = ['Default', 'Greens', 'Blues', 'autumn', 'gist_earth', 'coolwarm', 'flare', 'icefire',
-                                 'mako', 'Paired', 'Pastel1', 'Pastel2', 'rainbow', 'Spectral', 'twilight', 'vlag']
-                color = st.selectbox(label='Styles', options=color_options, index=0)
-                if color == "Default":
-                    color = "tab10"
+            # color options
+            color = _color_option()
 
-                color_option_list = st.checkbox(label='Custom Color Option', value=None)
-
-                if color_option_list:
-                    st.write('Can use palette names, or a list of hex codes, color names (separate by comma)')
-                    st.caption("Example: green, blue, red")
-                    custom_color = st.text_input(label="Custom Color List:", value="Default")
-
-                    url = 'https://www.practicalpythonfordatascience.com/ap_seaborn_palette'
-                    st.caption("Additional color options can be found [here](%s)" % url)
-
-                    # conditional for custom_color list
-                    if custom_color == "":
-                        color = 'tab10'
-                        st.write(f":rainbow[Be sure to give a list of colors!]")
-                    elif custom_color == "Default":
-                        color = 'tab10'
-                    # assume input  is color palette
-                    elif ',' not in custom_color:
-                        color = custom_color
-                        st.write(f":red[input is color palette: {color}]")
-                    # assume input is a list of colors
-                    elif ',' in custom_color:
-                        color = [color.strip() for color in custom_color.split(',')]
-                    else:
-                        st.write(":red[Not a valid color list!]")
-            else:
-                color = None
-
-            # Annotation options
-            annotation = st.toggle(label="Plot Annotations")
-
-            if annotation:
-                # # Hide until update py50 with this parameter
-                # st.toggle(label="Hide Significance?")
-
-                # pair order
-                group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
-                if group_order == "Group1, Group2, etc":
-                    group_order = None
-                elif group_order == "":
-                    group_order = None
-                else:
-                    group_order = [value.strip() for value in group_order.split(',')]
-
-                print(group_order)
-
-                # pairs
-                # Generate pairs from post_hoc_table
-                groups = list(set(post_hoc_table['A'].tolist() + post_hoc_table['B'].tolist()))
-                pairs = [(group1, group2) for group1, group2 in combinations(groups, 2) if group1 != group2]
-
-                # Pair selection. Will return an empty list
-                pairs_select = st.multiselect(label="Group Pairs", options=pairs, placeholder="Select Pairs")
-                if not pairs_select:
-                    pairs_select = None
-
-                # pairs = st.text_input(label='Group Pairs', value="Pairs")
-                st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
-
-                # pvalue
-                pvalue = st.text_input(label='Custom P-Value', value="P-value")
-                st.caption("Example: p ≤ 0.01, p ≤ 0.05, etc")
-
-                if pvalue == 'P-value':
-                    pairs_select = None
-                    pvalue = None
-                elif pvalue:
-                    pvalue = [value.strip() for value in pvalue.split(',')]
-                elif pvalue == "":
-                    pvalue = None
-                else:
-                    pvalue = None
-
-        # st.write(pvalue)
-        # st.write(pairs_select)
+            # annotation options
+            annotation, group_order, pairs_select, pvalue = _annotation(post_hoc_table)
 
         # Set font type:
         plt.rcParams['font.family'] = style
@@ -475,36 +526,6 @@ class Stats_Logic:
 
                     st.pyplot(fig)
                     self.download_fig(fig=fig, file_name="normality.png")
-
-    def column_selection(self, data, dv_col, group_col, subgroup_col, paste):
-        """
-        Function to select columns for statistics calculator.
-        :param data:
-        :param dv_col:
-        :param group_col:
-        :param subgroup_col:
-        :param paste:
-        :return:
-        """
-        global select, selected_data
-        # Conditional after selecting columns for calculation
-        if group_col is not None and dv_col is not None:
-            st.write('**Current Data Selection:**')
-            select = data.copy()
-
-            if subgroup_col == None:
-                selected_data = select[[group_col, dv_col]]
-            else:
-                selected_data = select[[group_col, dv_col, subgroup_col]]
-
-            st.write(selected_data)
-
-            if paste:
-                # Pasting data does not ensure correct format. Must enforce!
-                selected_data['Group'] = select['Group'].astype(str)
-                selected_data['Dependent Variable'] = select['Dependent Variable'].astype(float)
-        else:
-            st.write('**Current Data Selection:**')
 
     def download_csv(self, df, file_name=None, index=False):
         csv = df.to_csv(index=index).encode('utf-8')
