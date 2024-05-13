@@ -4,8 +4,9 @@ Functions for statistics.
 
 import streamlit as st
 import pandas as pd
-from collections import namedtuple
 import io
+from itertools import combinations
+from collections import namedtuple
 from matplotlib import pyplot as plt
 import seaborn as sns
 from py50.stats import Plots, Stats
@@ -204,45 +205,67 @@ class Stats_Logic:
             else:
                 color = None
 
-            # Annotation Ooptions
+            # Annotation options
             annotation = st.toggle(label="Plot Annotations")
 
             if annotation:
                 # # Hide until update py50 with this parameter
                 # st.toggle(label="Hide Significance?")
 
+                # pair order
+                group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
+                if group_order == "Group1, Group2, etc":
+                    group_order = None
+                elif group_order == "":
+                    group_order = None
+                else:
+                    group_order = [value.strip() for value in group_order.split(',')]
+
+                print(group_order)
+
                 # pairs
-                # Generate paairs from table
-                pairs = st.text_input(label='Group Pairs', value="Pairs")
+                # Generate pairs from post_hoc_table
+                groups = list(set(post_hoc_table['A'].tolist() + post_hoc_table['B'].tolist()))
+                pairs = [(group1, group2) for group1, group2 in combinations(groups, 2) if group1 != group2]
+
+                # Pair selection. Will return an empty list
+                pairs_select = st.multiselect(label="Group Pairs", options=pairs, placeholder="Select Pairs")
+                if not pairs_select:
+                    pairs_select = None
+
+                # pairs = st.text_input(label='Group Pairs', value="Pairs")
                 st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
 
                 # pvalue
-                pvalue = st.text_input(label='Custom P-value', value="P-value")
-                st.caption("Example: 'p ≤ 0.01', 'p ≤ 0.05', etc")
+                pvalue = st.text_input(label='Custom P-Value', value="P-value")
+                st.caption("Example: p ≤ 0.01, p ≤ 0.05, etc")
 
-                if pairs == 'Pairs' and pvalue == 'P-value':
-                    pairs = None
+                if pvalue == 'P-value':
+                    pairs_select = None
                     pvalue = None
+                elif pvalue:
+                    pvalue = [value.strip() for value in pvalue.split(',')]
+                elif pvalue == "":
+                    pvalue = None
+                else:
+                    pvalue = None
+
+        # st.write(pvalue)
+        # st.write(pairs_select)
 
         # Set font type:
         plt.rcParams['font.family'] = style
 
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
-            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation)
+            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation, order=group_order)
         else:
-            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation)
+            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation, order=group_order)
 
         # Conditional to plot figure
-        if annotation is False:
+        if annotation:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
-                         orient=orientation)
-        elif pvalue and pairs:
-            pvalue = [value.strip() for value in pvalue.split(',')]
-            print(pvalue)
-
-            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
-                         orient=orientation, pvalue_label=pvalue, pairs=pairs)
+                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
         else:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
                          orient=orientation)
