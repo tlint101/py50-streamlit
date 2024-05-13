@@ -125,16 +125,16 @@ def _color_option():
 
 def _annotation(post_hoc_table, fig_type):
     # Annotation options
-    global group_order, pairs_select, pvalue, point_size
+    global group_order, pairs_select, pvalue, legend, location, position
     annotation = st.toggle(label="Plot Annotations")
     if annotation:
         # # Hide until update py50 with this parameter
         # st.toggle(label="Hide Significance?")
 
-        if fig_type == "Swarm Plot":
-            point_size = st.slider(label="Point Size", min_value=1, max_value=20, value=5)
-        else:
-            point_size = None
+        # if fig_type == "Swarm Plot":
+        #     point_size = st.slider(label="Point Size", min_value=1, max_value=20, value=5)
+        # else:
+        #     point_size = None
 
         # pair order
         group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
@@ -178,11 +178,29 @@ def _annotation(post_hoc_table, fig_type):
             pvalue = None
         else:
             pvalue = None
-    return annotation, group_order, pairs_select, pvalue, point_size
+
+        # Figure legend options
+        legend = st.toggle(label="Show Legend", value=False)
+        if legend:
+            location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
+                                'center left', 'center right', 'lower center', 'upper center', 'center']
+            location = st.selectbox(label='Location', options=location_options, index=0)
+
+            # position requires tuple. Split into list then convert as follows
+            position_input = st.text_input(label='Position', value="1, 1")
+            if position_input == "":
+                position = (0, 0)
+            else:
+                input_split = position_input.split(',')
+                position = (float(input_split[0]), int(input_split[1]))
+
+            st.write(position)
+
+    return annotation, group_order, pairs_select, pvalue, legend, location, position
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type, point_size):
+              pvalue, selected_data, subgroup_col, test_type):
     global ax
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -248,19 +266,19 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.swarmplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                               order=group_order, size=point_size, palette=color)
+                               order=group_order, palette=color)
         else:
             ax = sns.swarmplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                               order=group_order, size=point_size, palette=color)
+                               order=group_order, palette=color)
 
         # Conditional to plot figure
         if annotation:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                           group_order=group_order, size=point_size)
+                           group_order=group_order)
         else:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color, orient=orientation, size=point_size)
+                           palette=color, orient=orientation)
 
     elif fig_type == 'Strip Plot':
         if color is None:
@@ -430,14 +448,15 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, point_size = _annotation(post_hoc_table, fig_type)
+            annotation, group_order, pairs_select, pvalue, legend, location, position = _annotation(post_hoc_table,
+                                                                                                    fig_type)
 
         # Set font type:
         plt.rcParams['font.family'] = style
 
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
-                       plot, pvalue, selected_data, subgroup_col, test_type, point_size)
+                       plot, pvalue, selected_data, subgroup_col, test_type)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
@@ -449,6 +468,11 @@ class Stats_Logic:
 
         col1, col2 = st.columns(2)
         with col1:
+            if legend and location:
+                plt.legend(loc=location, bbox_to_anchor=position)
+                plt.tight_layout()
+            else:
+                plt.tight_layout()
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
