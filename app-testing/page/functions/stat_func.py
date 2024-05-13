@@ -123,13 +123,18 @@ def _color_option():
     return color
 
 
-def _annotation(post_hoc_table):
+def _annotation(post_hoc_table, fig_type):
     # Annotation options
-    global group_order, pairs_select, pvalue
+    global group_order, pairs_select, pvalue, point_size
     annotation = st.toggle(label="Plot Annotations")
     if annotation:
         # # Hide until update py50 with this parameter
         # st.toggle(label="Hide Significance?")
+
+        if fig_type == "Swarm Plot":
+            point_size = st.slider(label="Point Size", min_value=1, max_value=20, value=5)
+        else:
+            point_size = None
 
         # pair order
         group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
@@ -173,7 +178,130 @@ def _annotation(post_hoc_table):
             pvalue = None
         else:
             pvalue = None
-    return annotation, group_order, pairs_select, pvalue
+    return annotation, group_order, pairs_select, pvalue, point_size
+
+
+def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
+              pvalue, selected_data, subgroup_col, test_type, point_size):
+    global ax
+    if fig_type == 'Box Plot':
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                             order=group_order)
+        else:
+            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                             order=group_order)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                         palette=color,
+                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+        else:
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                         palette=color,
+                         orient=orientation)
+
+    elif fig_type == 'Bar Plot':
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.barplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                             order=group_order)
+        else:
+            ax = sns.barplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                             order=group_order)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                         palette=color,
+                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+        else:
+            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                         palette=color,
+                         orient=orientation)
+
+    elif fig_type == 'Violin Plot':
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.violinplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                                order=group_order)
+        else:
+            ax = sns.violinplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                                order=group_order)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                            palette=color,
+                            orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+        else:
+            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                            palette=color,
+                            orient=orientation)
+
+    elif fig_type == 'Swarm Plot':
+        if color is None:
+            color = "tab10"
+
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.swarmplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                               order=group_order, size=point_size, palette=color)
+        else:
+            ax = sns.swarmplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                               order=group_order, size=point_size, palette=color)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order, size=point_size)
+        else:
+            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color, orient=orientation, size=point_size)
+
+    elif fig_type == 'Strip Plot':
+        if color is None:
+            color = "tab10"
+
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.stripplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                               order=group_order, palette=color)
+        else:
+            ax = sns.stripplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                               order=group_order, palette=color)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order)
+        else:
+            plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color, orient=orientation)
+
+    elif fig_type == 'Boxen Plot':
+        # must call ax. Thus, will need to plot "twice".
+        if orientation == 'h':
+            ax = sns.boxenplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+                               order=group_order)
+        else:
+            ax = sns.boxenplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+                               order=group_order)
+
+        # Conditional to plot figure
+        if annotation:
+            plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color,
+                           orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+        else:
+            plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                           palette=color,
+                           orient=orientation)
+    return ax
 
 
 """
@@ -302,24 +430,14 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue = _annotation(post_hoc_table)
+            annotation, group_order, pairs_select, pvalue, point_size = _annotation(post_hoc_table, fig_type)
 
         # Set font type:
         plt.rcParams['font.family'] = style
 
-        # must call ax. Thus, will need to plot "twice".
-        if orientation == 'h':
-            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation, order=group_order)
-        else:
-            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation, order=group_order)
-
-        # Conditional to plot figure
-        if annotation:
-            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
-                         orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
-        else:
-            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col, palette=color,
-                         orient=orientation)
+        # Generate plots
+        ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
+                       plot, pvalue, selected_data, subgroup_col, test_type, point_size)
 
         # Get underlying matplotlib figure
         fig = plt.gcf()
