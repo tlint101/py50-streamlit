@@ -126,14 +126,34 @@ def _color_option():
 
 
 def _annotation(post_hoc_table, fig_type):
+
+    # Set variables so plots will be generated before annotation
+    group_order = None
+    pairs_select = None
+    pvalue = None
+    legend = None
+    location = None
+    position = None
+    whisker = None
+    bars = None
+    capsize = None
+    loc = None
+    point_size = None
+
     # Annotation options
-    global group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size
     annotation = st.toggle(label="Plot Annotations")
+
     if annotation:
         # Hide until update py50 with this parameter
         ns_group = st.checkbox(label="Hide Groups with No Significance?")
 
-        if fig_type == "Swarm Plot" or "Strip Plot":
+        if fig_type == "Swarm Plot":
+            point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
+            point_size = int(point_size)
+        else:
+            point_size = None
+
+        if fig_type == "Strip Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
             point_size = int(point_size)
         else:
@@ -164,12 +184,13 @@ def _annotation(post_hoc_table, fig_type):
             loc = 'inside'
 
         # pair order
+        group_order = None  # Plots need group_order variable to generate
         group_order = st.text_input(label='Group Order', value="Group1, Group2, etc")
         st.caption("Note: Be sure to write names exactly as they appear in table!")
         if group_order == "Group1, Group2, etc":
             group_order = None
-        elif group_order == "":
-            group_order = None
+        # elif group_order == "":
+        #     group_order = None
         else:
             group_order = [value.strip() for value in group_order.split(',')]
             if len(group_order) > len(post_hoc_table):
@@ -398,7 +419,7 @@ class Stats_Logic:
                 group_col = st.selectbox('Group:', col_header, index=None, placeholder="Select Group")
             with col2:
                 dv_col = st.selectbox('Dependent Variable:', col_header, index=None,
-                                      placeholder="Select DV")  # Index to auto select column
+                                      placeholder="Select Dependent Variable")  # Index to auto select column
             with col3:
                 subgroup_col = st.selectbox('Subgroup (Optional):', col_header, index=None,
                                             placeholder="Select Subgroup")  # Index to auto select column
@@ -418,7 +439,7 @@ class Stats_Logic:
 
             # Omnibus test
             if test is None:
-                st.write(":red[Please select a post-hoc test]")
+                st.write(":red[Please select a Omnibus Test above]")
             else:
                 self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
 
@@ -440,9 +461,10 @@ class Stats_Logic:
         # Plot post-hoc results
         plot = st.toggle('Generate Plot')
         if plot:
+
             # Warning to select post-hoc test before plot generation
-            if test is None:
-                st.write(":red[Please select a Post-Hoc test!]")
+            if post_hoc is False:
+                st.write(":red[Select a Post-Hoc test first!]")
 
             fig_type = st.radio(label="Available Plots:", options=plot_type, index=None)
 
