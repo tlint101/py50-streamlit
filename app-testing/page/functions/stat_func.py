@@ -151,7 +151,7 @@ def _annotation(post_hoc_table, fig_type):
 
     if annotation:
         # Hide until update py50 with this parameter
-        no_annotation = st.checkbox(label="No Annotations")
+        no_annotation = st.checkbox(label="Hide Annotations")
 
         if no_annotation is False:
             ns_group = st.checkbox(label="Hide Groups with No Significance?")
