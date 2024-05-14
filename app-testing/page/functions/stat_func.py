@@ -340,14 +340,16 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if color is None:
             color = "tab10"
 
+        if point_size is None:
+            point_size = 5
+
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
-            ax = sns.stripplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
+            ax = sns.stripplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
                                order=group_order, palette=color, size=point_size)
         else:
-            print("this is the FIRST else:", point_size)  # todo something is wrong here? Check order
-            print('this is the order', group_order)
-            ax = sns.stripplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
+            print("this is the FIRST else:", point_size)
+            ax = sns.stripplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
                                order=group_order, palette=color, size=point_size)
 
         # Conditional to plot figure
