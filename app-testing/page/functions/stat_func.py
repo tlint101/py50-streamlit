@@ -131,7 +131,7 @@ def _color_option():
     return color
 
 
-def _annotation(post_hoc_table, fig_type):
+def _annotation(post_hoc_table, fig_type, selected_data, subgroup_col):
     # Set variables so plots will be generated before annotation
     no_annotation = None
     group_order = None
@@ -145,6 +145,8 @@ def _annotation(post_hoc_table, fig_type):
     capsize = None
     loc = None
     point_size = None
+    legend_configuration = None
+    bbox = None
 
     # Annotation options
     annotation = st.toggle(label="Plot Annotations")
@@ -241,12 +243,12 @@ def _annotation(post_hoc_table, fig_type):
             pvalue = None
 
         # Figure legend options
+        location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
+                            'center left', 'center right', 'lower center', 'upper center', 'center']
         if fig_type == 'Swarm Plot' or fig_type == 'Strip Plot':
             legend = st.toggle(label="Show Legend", value=False)
             if legend:
-                location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
-                                    'center left', 'center right', 'lower center', 'upper center', 'center']
-                location = st.selectbox(label='Location', options=location_options, index=0)
+                location = st.selectbox(label='Legend Position', options=location_options, index=0)
 
                 # position requires tuple. Split into list then convert as follows
                 position_input = st.text_input(label='Position', value="1, 1")
@@ -255,12 +257,20 @@ def _annotation(post_hoc_table, fig_type):
                 else:
                     input_split = position_input.split(',')
                     position = (float(input_split[0]), int(input_split[1]))
+        if subgroup_col != None or subgroup_col != "":
+            st.subheader('Legend Position')
+            legend_configuration = st.selectbox(label="Legend Position", options=location_options, index=0)
+            left = st.slider(label='Left', min_value=0.0, max_value=3.0, value=0.95, step=0.05, key='plot_left')
+            bottom = 0.35
+            width = 0.05
+            height = 0.3
+            bbox = [left, bottom, width, height]
         else:
             legend = None
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
@@ -269,44 +279,45 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
-            ax = sns.boxplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                             order=group_order, whis=whisker)
+            ax = sns.boxplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
+                             order=group_order, whis=whisker, hue=subgroup_col)
         else:
-            ax = sns.boxplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                             order=group_order, whis=whisker)
+            ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
+                             order=group_order, whis=whisker, hue=subgroup_col)
 
         # Conditional to plot figure
         if annotation:
             if no_annotation is True:
                 pass
             else:
-                plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                              palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                              group_order=group_order, whis=whisker)
         else:
-            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
 
     elif fig_type == 'Bar Plot':
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.barplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                             order=group_order, errorbar=bars, capsize=capsize)
+                             order=group_order, errorbar=bars, capsize=capsize, hue=selected_data[subgroup_col])
         else:
             ax = sns.barplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                             order=group_order)
+                             order=group_order, hue=selected_data[subgroup_col])
 
         # Conditional to plot figure
         if annotation:
             if no_annotation is True:
                 pass
             else:
-                plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                              palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                              group_order=group_order, errorbar=bars, capsize=capsize)
         else:
-            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
+        print(subgroup_col)
 
     elif fig_type == 'Violin Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -350,8 +361,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                 pass
             else:
                 plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                           group_order=group_order, size=point_size)
+                               palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                               group_order=group_order, size=point_size)
         else:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, size=point_size)
@@ -558,9 +569,11 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation = _annotation(
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox = _annotation(
                 post_hoc_table,
-                fig_type)
+                fig_type,
+                selected_data,
+                subgroup_col)
 
         # Set font type:
         plt.rcParams['font.family'] = style
@@ -584,6 +597,14 @@ class Stats_Logic:
                 plt.tight_layout()
             # Get underlying matplotlib figure
             fig = plt.gcf()
+
+            if legend_configuration is None:
+                self._final_legend(subgroup_col)
+                st.write("this is None")
+            else:
+                self._final_legend(subgroup_col, loc=legend_configuration, bbox_to_anchor=bbox)
+                st.write("bbox")
+
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
@@ -628,16 +649,37 @@ class Stats_Logic:
                         linewidths = st.slider(label='Line Width', min_value=0.0, max_value=2.0, value=0.01, step=0.01)
                         linecolor = st.color_picker(label="Line Color", value="#808080")
                         st.write(":rainbow[Color Bar Options]")
-                        left = st.slider(label='Left', min_value=0.0, max_value=3.0, value=0.95, step=0.05)
-                        bottom = st.slider(label='Bottom', min_value=0.0, max_value=3.0, value=0.35, step=0.05)
-                        width = st.slider(label='Width', min_value=0.0, max_value=1.0, value=0.05, step=0.05)
-                        height = st.slider(label='Height', min_value=0.0, max_value=1.0, value=0.3, step=0.05)
+                        left = st.slider(label='Left', min_value=0.0, max_value=2.0, value=0.95, step=0.05,
+                                         key='matrix_left')
+                        bottom = st.slider(label='Bottom', min_value=0.0, max_value=3.0, value=0.35, step=0.05,
+                                           key='matrix_bottom')
+                        width = st.slider(label='Width', min_value=0.0, max_value=1.0, value=0.05, step=0.05,
+                                          key='matrix_width')
+                        height = st.slider(label='Height', min_value=0.0, max_value=1.0, value=0.3, step=0.05,
+                                           key='matrix_height')
 
                     fig = plots.p_matrix(cmap=cmap, title=title, linewidths=linewidths, linecolor=linecolor,
                                          square=square, cbar_ax_bbox=[left, bottom, width, height])[0]
 
                     st.pyplot(fig.figure)
                     self.download_fig(fig.figure, file_name='py50_matrix_plot.png')
+
+    def _final_legend(self, subgroup_col, loc=None, bbox_to_anchor=None):
+        "Plot legend and remove duplicates due to repeat sns and py50 plots"
+        # Get the current axes
+        ax = plt.gca()
+        # Get the handles and labels of the current axes
+        handles, labels = ax.get_legend_handles_labels()
+        # Combine the labels and handles
+        unique_labels = []
+        unique_handles = []
+        for handle, label in zip(handles, labels):
+            if label not in unique_labels:
+                unique_labels.append(label)
+                unique_handles.append(handle)
+        # Create the legend from unique handles and labels
+        plt.legend(unique_handles, unique_labels, title=subgroup_col, loc=loc, bbox_to_anchor=bbox_to_anchor)
+
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
         stats = Stats(selected_data)
