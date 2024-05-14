@@ -133,6 +133,7 @@ def _color_option():
 
 def _annotation(post_hoc_table, fig_type):
     # Set variables so plots will be generated before annotation
+    no_annotation = None
     group_order = None
     pairs_select = None
     pvalue = None
@@ -150,7 +151,10 @@ def _annotation(post_hoc_table, fig_type):
 
     if annotation:
         # Hide until update py50 with this parameter
-        ns_group = st.checkbox(label="Hide Groups with No Significance?")
+        no_annotation = st.checkbox(label="No Annotations")
+
+        if no_annotation is False:
+            ns_group = st.checkbox(label="Hide Groups with No Significance?")
 
         if fig_type == "Swarm Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
@@ -208,27 +212,31 @@ def _annotation(post_hoc_table, fig_type):
                 group_order = group_order
 
         # pairs
-        # Generate pairs from post_hoc_table
-        groups = list(set(post_hoc_table['A'].tolist() + post_hoc_table['B'].tolist()))
-        pairs = [(group1, group2) for group1, group2 in combinations(groups, 2) if group1 != group2]
+        if no_annotation is False:
+            # Generate pairs from post_hoc_table
+            groups = list(set(post_hoc_table['A'].tolist() + post_hoc_table['B'].tolist()))
+            pairs = [(group1, group2) for group1, group2 in combinations(groups, 2) if group1 != group2]
 
-        # Pair selection. Will return an empty list
-        pairs_select = st.multiselect(label="Group Pairs", options=pairs, placeholder="Select Pairs")
-        st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
-        if not pairs_select:
-            pairs_select = None
+            # Pair selection. Will return an empty list
+            pairs_select = st.multiselect(label="Group Pairs", options=pairs, placeholder="Select Pairs")
+            st.caption("Example: (pair1, pair2), (pair1, pair3), etc")
+            if not pairs_select:
+                pairs_select = None
 
         # pvalue
-        pvalue = st.text_input(label='Custom P-Value', value="P-value")
-        st.caption("Example: p ≤ 0.01, p ≤ 0.05, etc")
+        if no_annotation is False:
+            pvalue = st.text_input(label='Custom P-Value', value="P-value")
+            st.caption("Example: p ≤ 0.01, p ≤ 0.05, etc")
 
-        if pvalue == 'P-value':
-            pairs_select = None
-            pvalue = None
-        elif pvalue is str:
-            pvalue = [value.strip() for value in pvalue.split(',')]
-        elif pvalue == "":
-            pvalue = None
+            if pvalue == 'P-value':
+                pairs_select = None
+                pvalue = None
+            elif pvalue is str:
+                pvalue = [value.strip() for value in pvalue.split(',')]
+            elif pvalue == "":
+                pvalue = None
+            else:
+                pvalue = None
         else:
             pvalue = None
 
@@ -252,11 +260,11 @@ def _annotation(post_hoc_table, fig_type):
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size):
+              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size, no_annotation):
     global ax
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -269,9 +277,12 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                         group_order=group_order, whis=whisker)
+            if no_annotation is True:
+                pass
+            else:
+                plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                             group_order=group_order, whis=whisker)
         else:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                          palette=color, orient=orientation)
@@ -287,9 +298,12 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                         group_order=group_order, errorbar=bars, capsize=capsize)
+            if no_annotation is True:
+                pass
+            else:
+                plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                             group_order=group_order, errorbar=bars, capsize=capsize)
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                          palette=color, orient=orientation)
@@ -305,9 +319,12 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                            group_order=group_order, loc=loc)
+            if no_annotation is True:
+                pass
+            else:
+                plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                                palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                group_order=group_order, loc=loc)
         else:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                             palette=color,
@@ -329,7 +346,10 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+            if no_annotation is True:
+                pass
+            else:
+                plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                            group_order=group_order, size=point_size)
         else:
@@ -348,15 +368,17 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             ax = sns.stripplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
                                order=group_order, palette=color, size=point_size)
         else:
-            print("this is the FIRST else:", point_size)
             ax = sns.stripplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
                                order=group_order, palette=color, size=point_size)
 
         # Conditional to plot figure
         if annotation:
-            plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                           group_order=group_order, size=point_size)
+            if no_annotation is True:
+                pass
+            else:
+                plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                               palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                               group_order=group_order, size=point_size)
         else:
             print("This is the else for", point_size)
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
@@ -373,9 +395,12 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
-                           palette=color,
-                           orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
+            if no_annotation is True:
+                pass
+            else:
+                plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                               palette=color,
+                               orient=orientation, pvalue_label=pvalue, pairs=pairs_select, group_order=group_order)
         else:
             plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color,
@@ -534,7 +559,7 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size = _annotation(
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation = _annotation(
                 post_hoc_table,
                 fig_type)
 
@@ -543,7 +568,8 @@ class Stats_Logic:
 
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
-                       plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size)
+                       plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size,
+                       no_annotation)
 
         # Modify plot
         ax.set_title(title, fontsize=title_fontsize)
@@ -562,7 +588,7 @@ class Stats_Logic:
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
-        # Matrix figure
+            # Matrix figure
             if fig:
                 plt.clf()
                 matrix = st.toggle(label='Plot Matrix', value=False)
