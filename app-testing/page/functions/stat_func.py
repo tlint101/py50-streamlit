@@ -68,7 +68,7 @@ def _font_options(dv_col, group_col, test, orientation):
     # Font options
     font_option = st.toggle(label="Font Options")
     if font_option:
-        style = st.text_input(label="Font Style", value="DejaVu Sans")
+        style = st.text_input(label="Font Style", value="DejaVu Sans", key='plot')
         title = st.text_input(label='Plot Title', value=f"Post Hoc {test} Results")
         x_label = st.text_input(label='Plot X Label', value=group_col)
         y_label = st.text_input(label='Plot Y Label', value=dv_col)
@@ -380,7 +380,6 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                                palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                                group_order=group_order, size=point_size)
         else:
-            print("This is the else for", point_size)
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
                            palette=color, orient=orientation, size=point_size)
 
@@ -596,10 +595,49 @@ class Stats_Logic:
                     stats = Stats(selected_data)
                     matrix_pvalues = stats.get_p_matrix(data=post_hoc_table, test=get_test(test))
                     plots = Plots(matrix_pvalues)
-                    fig = plots.p_matrix()[0]
+
+                    # Matrix plot conditions
+                    st.sidebar.subheader("Matrix Plot Options")
+                    with st.sidebar:
+                        title = st.text_input(label='Matrix Title', value=f"Matrix of P-Values for {test}")
+
+                        # cmap conditions
+                        cmap = st.text_input(label='Color Options', value="Separate By Comma")
+                        cmap_default = ["1", "#fbd7d4", "#005a32", "#238b45", "#a1d99b"]
+                        if cmap == "Separate By Comma":
+                            cmap = cmap_default
+                        elif cmap == "":
+                            st.warning(f":red[🚨 Input must be list separated by comma‼️]")
+                            cmap = cmap_default
+                        # assume input  is color palette
+                        elif ',' not in cmap:
+                            st.warning(f":red[🚨 Input must be list separated by comma‼️]")
+                            cmap = cmap_default
+                        # assume input is a list of colors
+                        elif ',' in cmap:
+                            cmap = [color.strip() for color in cmap.split(',')]
+                            if len(cmap) < 5:
+                                cmap = cmap_default
+                                st.warning(f":red[🚨 Input must be 5 colors‼️]")
+                        else:
+                            st.write(":red[Not a valid color list!]")
+                        st.caption("Can be color name or hex code")
+
+                        # Additional matrix conditions
+                        square = st.checkbox(label='Square', value=False)
+                        linewidths = st.slider(label='Line Width', min_value=0.0, max_value=2.0, value=0.01, step=0.01)
+                        linecolor = st.color_picker(label="Line Color", value="#808080")
+                        st.write(":rainbow[Color Bar Options]")
+                        left = st.slider(label='Left', min_value=0.0, max_value=3.0, value=0.95, step=0.05)
+                        bottom = st.slider(label='Bottom', min_value=0.0, max_value=3.0, value=0.35, step=0.05)
+                        width = st.slider(label='Width', min_value=0.0, max_value=1.0, value=0.05, step=0.05)
+                        height = st.slider(label='Height', min_value=0.0, max_value=1.0, value=0.3, step=0.05)
+
+                    fig = plots.p_matrix(cmap=cmap, title=title, linewidths=linewidths, linecolor=linecolor,
+                                         square=square, cbar_ax_bbox=[left, bottom, width, height])[0]
 
                     st.pyplot(fig.figure)
-
+                    self.download_fig(fig.figure, file_name='py50_matrix_plot.png')
     def post_hoc_results(self, dv_col, group_col, subgroup_col, selected_data, test):
         global stat_df
         stats = Stats(selected_data)
