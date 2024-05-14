@@ -131,7 +131,7 @@ def _color_option():
     return color
 
 
-def _annotation(post_hoc_table, fig_type, selected_data, subgroup_col):
+def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col):
     # Set variables so plots will be generated before annotation
     no_annotation = None
     group_order = None
@@ -204,12 +204,14 @@ def _annotation(post_hoc_table, fig_type, selected_data, subgroup_col):
         #     group_order = None
         else:
             group_order = [value.strip() for value in group_order.split(',')]
-            if len(group_order) > len(post_hoc_table):
-                st.warning(":red[🚨Need more groups?🚨]")
+            if len(group_order) < len(selected_data[group_col].unique()):
+                st.warning(":red[🚨 Need more groups?🚨]")
                 group_order = None
-            elif len(group_order) < len(post_hoc_table):
-                st.warning(":red[🚨Need less groups?🚨]")
+            elif len(group_order) > len(selected_data[group_col].unique()):
+                st.warning(":red[🚨 Need less groups?🚨]")
                 group_order = None
+            elif len(group_order) == len(selected_data[group_col].unique()):
+                st.warning(f":red[🚨 Did you forget a comma? 🚨]")
             else:
                 group_order = group_order
 
@@ -293,9 +295,15 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                 plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                              palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                              group_order=group_order, whis=whisker)
+        elif subgroup_col:
+            st.warning("""
+            Annotations not supported for Pairwise T-Tests and Subgroups!           
+            **Suggest using it with Matrix Plot!**
+                       """)
         else:
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
+
 
     elif fig_type == 'Bar Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -317,7 +325,6 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
-        print(subgroup_col)
 
     elif fig_type == 'Violin Plot':
         # must call ax. Thus, will need to plot "twice".
@@ -333,11 +340,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             if no_annotation is True:
                 pass
             else:
-                plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                                 palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                                 group_order=group_order, loc=loc)
         else:
-            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                             palette=color,
                             orient=orientation)
 
@@ -360,11 +367,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             if no_annotation is True:
                 pass
             else:
-                plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+                plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                                palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                                group_order=group_order, size=point_size)
         else:
-            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subject_col=subgroup_col,
+            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                            palette=color, orient=orientation, size=point_size)
 
     elif fig_type == 'Strip Plot':
@@ -573,6 +580,7 @@ class Stats_Logic:
                 post_hoc_table,
                 fig_type,
                 selected_data,
+                group_col,
                 subgroup_col)
 
         # Set font type:
@@ -598,12 +606,11 @@ class Stats_Logic:
             # Get underlying matplotlib figure
             fig = plt.gcf()
 
+            # legend configuration if there are subgroups
             if legend_configuration is None:
                 self._final_legend(subgroup_col)
-                st.write("this is None")
             else:
                 self._final_legend(subgroup_col, loc=legend_configuration, bbox_to_anchor=bbox)
-                st.write("bbox")
 
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
