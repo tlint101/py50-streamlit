@@ -442,14 +442,25 @@ class Stats_Logic:
         omnibus = st.toggle('Omnibus Tests')
         omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (Non-Parametric)', 'Cochran (Non-Parametric)',
                          'Friedman (Non-Parametric)']
-        if omnibus:
-            test = st.radio(label="Available Omnibus Test:", options=omnibus_tests, index=None)
 
-            # Omnibus test
-            if test is None:
-                st.write(":red[Please select a Omnibus Test above]")
-            else:
-                self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
+        col1, col2 = st.columns(2)
+        with col1:
+            if omnibus:
+                test = st.radio(label="Available Omnibus Test:", options=omnibus_tests, index=None)
+
+                # Omnibus test
+                if test is None:
+                    st.write(":red[Please select a Omnibus Test above]")
+                else:
+                    st.write(":green[🥳 Stat Results:]")
+                    self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
+
+        with col2:
+            if omnibus:
+                if test:
+                    significance = Stats.explain_significance()
+                    st.write(":green[🔎 Significance Values:]")
+                    st.write(significance)
 
         # Run post-hoc tests
         post_hoc = st.toggle('Post-Hoc Tests')
@@ -457,13 +468,25 @@ class Stats_Logic:
                           'Pairwise T-Tests (Non-Parametric)']
         captions = ['Parametric', 'Parametric', 'Parametric', 'Non-Parametric', 'Non-Parametric', 'Non-Parametric']
         plot_type = ['Box Plot', 'Bar Plot', 'Violin Plot', 'Swarm Plot', 'Strip Plot', "Boxen Plot"]
-        if post_hoc:
-            test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
 
-            # post-hoc test
-            if test is None:
-                st.write(":red[Please select a post-hoc test]")
-            else:
+        col1, col2 = st.columns(2)
+        with col1:
+            if post_hoc:
+                test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
+                if test is None:
+                    st.write(":red[Please select a post-hoc test]")
+
+        with col2:
+            if post_hoc:
+                if test:
+                    significance = Stats.explain_significance()
+                    st.write(":green[🔎 Significance Values:]")
+                    st.write(significance)
+
+        # post-hoc test
+        if post_hoc:
+            if test:
+                st.write(":green[🥳 Stat Results:]")
                 post_hoc_table = self.post_hoc_results(dv_col, group_col, subgroup_col, selected_data, test)
 
         # Plot post-hoc results
@@ -537,8 +560,7 @@ class Stats_Logic:
             st.pyplot(fig)
             self.download_fig(fig, file_name='py50_stat_plot.png')
 
-        # todo add conditions to the matrix
-        with col2:
+        # Matrix figure
             if fig:
                 plt.clf()
                 matrix = st.toggle(label='Plot Matrix', value=False)
