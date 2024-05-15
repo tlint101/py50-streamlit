@@ -308,11 +308,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
     elif fig_type == 'Bar Plot':
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
-            ax = sns.barplot(x=selected_data[dv_col], y=selected_data[group_col], orient=orientation,
-                             order=group_order, errorbar=bars, capsize=capsize, hue=selected_data[subgroup_col])
+            ax = sns.barplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
+                             order=group_order, errorbar=bars, capsize=capsize, hue=subgroup_col)
         else:
-            ax = sns.barplot(x=selected_data[group_col], y=selected_data[dv_col], orient=orientation,
-                             order=group_order, hue=selected_data[subgroup_col])
+            ax = sns.barplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
+                             order=group_order, hue=subgroup_col)
 
         # Conditional to plot figure
         if annotation:
@@ -768,17 +768,18 @@ class Stats_Logic:
 
         # Omnibus test
         if test == 'ANOVA':
-            if subgroup_col == None:
+            if subgroup_col is None or subgroup_col == 'None':
+                print("THIS ONE?")
                 stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":red[Warning: Subgroup Column not needed for calculation.]")
-                stat_df = stats.get_anova(value_col=dv_col, group_col=group_col)
+                st.write(":blue[Select Subgroup Column for Two-Way ANOVA.]")
+                stat_df = stats.get_anova(value_col=dv_col, group_col=[group_col, subgroup_col])
 
         elif test == 'Welch-ANOVA':
-            if subgroup_col == None:
+            if subgroup_col is None or subgroup_col == 'None':
                 stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":red[Warning: Subgroup Column not used calculation.]")
+                st.write(":blue[Warning: Subgroup Column needed for calculation.]")
                 stat_df = stats.get_welch_anova(value_col=dv_col, group_col=group_col)
 
         # REPEATED MEASURE AND MIXED ANOVA WILL NEED TO BE MODIFIED. MAY NOT USE IN PY50-STREAMLIT!
@@ -795,22 +796,22 @@ class Stats_Logic:
         #         stat_df = stats.get_mixed_anova(value_col=dv_col, subject_col=group_col)
 
         elif test == 'Kruskal-Wallis (Non-Parametric)':
-            if subgroup_col == None:
+            if subgroup_col is None:
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":red[Warning: Subgroup Column not used in calculation.]")
+                st.write(":vluw[Warning: Subgroup Column not needed for calculation.]")
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
 
         elif test == 'Cochran (Non-Parametric)':
             if subgroup_col is None:
-                st.write(":red[Cochran Test requires a subgroup column!]")
+                st.warning(":red[🚨 Cochran Test requires a **Subgroup Column**‼️]")
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_cochran(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
 
         elif test == 'Friedman (Non-Parametric)':
             if subgroup_col is None:
-                st.write(":red[Friedman Test requires a subgroup column!]")
+                st.warning(":red[🚨 Friedman Test requires a **Subgroup Column**‼️]")
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col)
             else:
                 stat_df = stats.get_friedman(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
