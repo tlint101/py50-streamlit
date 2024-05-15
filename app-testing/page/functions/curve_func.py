@@ -251,23 +251,31 @@ class Plot_Logic:
         Code for plotting. there are if/else statements nested within depending on the 3 types of plots
         """
         # Logic based on paste or CSV input
-        if paste is True:
+        if paste:
             # Select columns for calculation
             drug_query = df
             col_header = drug_query.columns.to_list()
-            drug_name = st.selectbox("Drug Name:", (col_header))
-            compound_conc = st.selectbox(
-                "Drug Concentration:", (col_header), index=1
-            )  # Index to auto select column
-            ave_response = st.selectbox(
-                "Average Response column:", (col_header), index=2
-            )  # Index to auto select column
+
+            # set selection columns
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                drug_name = st.selectbox("Drug Name:", col_header)
+            with col2:
+                compound_conc = st.selectbox("Drug Concentration:", col_header, index=1)
+            with col3:
+                ave_response = st.selectbox("Average Response column:", col_header, index=2)
         else:
             drug_query = df
             col_header = drug_query.columns.to_list()
-            drug_name = st.selectbox("Drug Name:", (col_header))
-            compound_conc = st.selectbox("Drug Concentration:", (col_header))
-            ave_response = st.selectbox("Average Response column:", (col_header))
+
+            # set selection columns
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                drug_name = st.selectbox("Drug Name:", col_header)
+            with col2:
+                compound_conc = st.selectbox("Drug Concentration:", col_header)
+            with col3:
+                ave_response = st.selectbox("Average Response column:", col_header)
 
         # Set conditions before calculations
         conditions = {drug_name, compound_conc, ave_response}
