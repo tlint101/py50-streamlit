@@ -147,6 +147,7 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
     point_size = None
     legend_configuration = None
     bbox = None
+    ns_group = None
 
     # Annotation options
     annotation = st.toggle(label="Plot Annotations")
@@ -210,7 +211,7 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
             elif len(group_order) > len(selected_data[group_col].unique()):
                 st.warning(":red[🚨 Need less groups?🚨]")
                 group_order = None
-            elif len(group_order) == len(selected_data[group_col].unique()):
+            elif len(group_order) != len(selected_data[group_col].unique()):
                 st.warning(f":red[🚨 Did you forget a comma? 🚨]")
             else:
                 group_order = group_order
@@ -273,12 +274,19 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
             location = None
             position = None
 
-    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox
+    return annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox, ns_group
 
 
 def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select, plot,
-              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size, no_annotation):
+              pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size, no_annotation,
+              ns_group):
     global ax
+    test_issue = {
+        "pairwise-parametric": "Pairwise T-Tests",
+        "pairwise-nonparametric": "Pairwise T-Tests (Non-Parametric)",
+        "tukey": "Tukey",
+        "gameshowell": "Games-Howell"
+    }
     if fig_type == 'Box Plot':
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
@@ -288,42 +296,37 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         else:
             ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
                              order=group_order, whis=whisker, hue=subgroup_col)
-        # todo fix plotting to include subgroup column annotations. Maybe combine the sns with the py50 plots below?
-        # elif orientation == 'v' and subgroup_col:
-        #     ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-        #                      order=group_order, whis=whisker, hue=subgroup_col)
 
-        # todo fix plotting for subgroup columns
         # Conditional to plot figure
         if annotation:
-            if no_annotation is True:
+            # Only show the underlying sns plot
+            if no_annotation:
                 pass
-            # elif test_type == "Pairwise T-Tests":
-            #     st.warning(f"""
-            #                 Annotations not supported for {test_type} and Subgroups!
-            #                 **Suggest supplementing figure with the Matrix Plot!**
-            #                            """)
-            #     plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-            #                  palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-            #                  group_order=group_order, whis=whisker)
+                # st.write("Only show underlying sns plot")  # for troubleshooting
             else:
-                st.warning("""
-                            🚨 Annotations and Color options are not supported with Pairwise data with Subgroup Column‼️          
-                            **Suggest supplementing figure with the Matrix Plot below and turning off Plot Annotations**
-                                       """)
+                # st.write("if annotation and if no_annotation, and else")  # for troubleshooting
                 plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                              palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                             group_order=group_order, whis=whisker)
-        elif subgroup_col:
+                             group_order=group_order, whis=whisker, hide_ns=ns_group)
+        elif annotation and subgroup_col:
             st.warning("""
-            🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
-            **Suggest supplementing figure with the Matrix Plot below**
+                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
                        """)
-            # plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-            #              palette=color, orient=orientation, color=color)
-            ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                             order=group_order, whis=whisker, hue=subgroup_col)
+            st.write(group_order)
+            plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                         palette=color, orient=orientation, color=color, group_order=group_order)
+            # ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
+            #                  order=group_order, whis=whisker, hue=subgroup_col)
+
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️          
+                       """)
+            ax = None
+        elif test_type == 'tukey' or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️")
         else:
+            st.write("this is the else")
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation, color=color)
 
@@ -341,18 +344,13 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             if no_annotation is True:
                 pass
             else:
-                st.warning("""
-                            🚨 Annotations and Color options are not supported with Pairwise data with Subgroup Column‼️          
-                            **Suggest supplementing figure with the Matrix Plot below and turning off Plot Annotations**
-                                                       """)
+                st.warning(
+                    """🚨 Annotations and Color options are not supported with Pairwise data with Subgroup Column‼️""")
                 plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                              palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                              group_order=group_order, errorbar=bars, capsize=capsize)
         elif subgroup_col:
-            st.warning("""
-                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
-                        **Suggest supplementing figure with the Matrix Plot below**
-                                   """)
+            st.warning("""🚨 Annotations not supported with Pairwise data with Subgroup Column‼️""")
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
@@ -622,7 +620,7 @@ class Stats_Logic:
             color = _color_option()
 
             # annotation options
-            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox = _annotation(
+            annotation, group_order, pairs_select, pvalue, legend, location, position, whisker, bars, capsize, loc, point_size, no_annotation, legend_configuration, bbox, ns_group = _annotation(
                 post_hoc_table,
                 fig_type,
                 selected_data,
@@ -635,7 +633,7 @@ class Stats_Logic:
         # Generate plots
         ax = _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orientation, pairs_select,
                        plot, pvalue, selected_data, subgroup_col, test_type, whisker, bars, capsize, loc, point_size,
-                       no_annotation)
+                       no_annotation, ns_group)
 
         # Modify plot
         ax.set_title(title, fontsize=title_fontsize)
@@ -738,10 +736,18 @@ class Stats_Logic:
         stats = Stats(selected_data)
 
         if test == 'Tukey':
-            stat_df = stats.get_tukey(value_col=dv_col, group_col=group_col)
+            if subgroup_col:
+                st.error(f":red[🚨 ERROR: {test} cannot process a Subgroup Column‼️]")
+                stat_df = None
+            else:
+                stat_df = stats.get_tukey(value_col=dv_col, group_col=group_col)
 
         elif test == 'Games-Howell':
-            stat_df = stats.get_gameshowell(value_col=dv_col, group_col=group_col)
+            if subgroup_col:
+                st.error(f":red[🚨 ERROR: {test} cannot process a Subgroup Column‼️]")
+                stat_df = None
+            else:
+                stat_df = stats.get_gameshowell(value_col=dv_col, group_col=group_col)
 
         # todo fix subgroup_col input
         elif test == "Pairwise T-Tests":
