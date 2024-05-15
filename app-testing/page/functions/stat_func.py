@@ -246,7 +246,7 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
             pvalue = None
 
         # Figure legend options
-        location_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
+        location_options = ['None', 'best', 'upper right', 'upper left', 'lower left', 'lower right', 'right',
                             'center left', 'center right', 'lower center', 'upper center', 'center']
         if fig_type == 'Swarm Plot' or fig_type == 'Strip Plot':
             legend = st.toggle(label="Show Legend", value=False)
@@ -264,11 +264,15 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
         if subgroup_col != None or subgroup_col != "":
             st.subheader('Legend Position')
             legend_configuration = st.selectbox(label="Legend Position", options=location_options, index=0)
-            left = st.slider(label='Left', min_value=0.0, max_value=3.0, value=0.95, step=0.05, key='plot_left')
-            bottom = 0.35
-            width = 0.05
-            height = 0.3
-            bbox = [left, bottom, width, height]
+            if legend_configuration == 'None':
+                legend_configuration = None
+                bbox = None
+            else:
+                left = st.slider(label='Left', min_value=0.0, max_value=3.0, value=0.95, step=0.05, key='plot_left')
+                bottom = 0.35
+                width = 0.05
+                height = 0.3
+                bbox = [left, bottom, width, height]
         else:
             legend = None
             location = None
@@ -323,10 +327,10 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                         🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️          
                        """)
             ax = None
-        elif test_type == 'tukey' or test_type == 'gameshowell' and subgroup_col:
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
             st.warning(f"🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️")
         else:
-            st.write("this is the else")
+            # st.write("this is the else")  # for troubleshooting
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation, color=color)
 
@@ -652,7 +656,8 @@ class Stats_Logic:
 
             # legend configuration if there are subgroups
             if legend_configuration is None:
-                self._final_legend(subgroup_col)
+                # self._final_legend(subgroup_col)
+                pass
             else:
                 self._final_legend(subgroup_col, loc=legend_configuration, bbox_to_anchor=bbox)
 
