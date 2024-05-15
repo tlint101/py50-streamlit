@@ -35,12 +35,12 @@ class Calc_Logic:
             # set selection columns
             col1, col2, col3 = st.columns(3)
             with col1:
-                drug_name = st.selectbox('Drug Name:', (col_header))
+                drug_name = st.selectbox('Drug Name:', col_header)
             with col2:
-                compound_conc = st.selectbox('Drug Concentration:', (col_header),
+                compound_conc = st.selectbox('Drug Concentration:', col_header,
                                              index=1)  # Index to auto select column
             with col3:
-                ave_response = st.selectbox('Average Response column:', (col_header),
+                ave_response = st.selectbox('Average Response column:', col_header,
                                             index=2)  # Index to auto select column
         else:
             drug_query = df
@@ -48,11 +48,11 @@ class Calc_Logic:
 
             col1, col2, col3 = st.columns(3)
             with col1:
-                drug_name = st.selectbox('Drug Name:', (col_header))
+                drug_name = st.selectbox('Drug Name:', col_header)
             with col2:
-                compound_conc = st.selectbox('Drug Concentration:', (col_header))
+                compound_conc = st.selectbox('Drug Concentration:', col_header)
             with col3:
-                ave_response = st.selectbox('Average Response column:', (col_header))
+                ave_response = st.selectbox('Average Response column:', col_header)
 
         # sidebar options
         units = st.sidebar.radio('Input Concentration Units',
