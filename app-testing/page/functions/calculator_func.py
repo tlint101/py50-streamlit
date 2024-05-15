@@ -5,6 +5,7 @@ Functions for Calculator
 import streamlit as st
 from py50.calculator import Calculator
 
+
 class Calc_Logic:
     def __init__(self):
         pass
@@ -14,7 +15,6 @@ class Calc_Logic:
     def download_button(self, df, file_name=None):
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button('Download table as CSV', data=csv, file_name=file_name, mime='text/csv')
-
 
     def calculator_program(self, df=None, paste=True):
         '''
@@ -37,9 +37,11 @@ class Calc_Logic:
             with col1:
                 drug_name = st.selectbox('Drug Name:', (col_header))
             with col2:
-                compound_conc = st.selectbox('Drug Concentration:', (col_header), index=1)  # Index to auto select column
+                compound_conc = st.selectbox('Drug Concentration:', (col_header),
+                                             index=1)  # Index to auto select column
             with col3:
-                ave_response = st.selectbox('Average Response column:', (col_header), index=2)  # Index to auto select column
+                ave_response = st.selectbox('Average Response column:', (col_header),
+                                            index=2)  # Index to auto select column
         else:
             drug_query = df
             col_header = drug_query.columns.to_list()
