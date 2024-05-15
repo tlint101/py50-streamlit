@@ -27,19 +27,30 @@ class Calc_Logic:
         st.sidebar.markdown(':green[**Calculator Options:**]')
 
         # Logic based on paste or CSV input
-        if paste is True:
+        if paste:
             # Select columns for calculation
             drug_query = df
             col_header = drug_query.columns.to_list()
-            drug_name = st.selectbox('Drug Name:', (col_header))
-            compound_conc = st.selectbox('Drug Concentration:', (col_header), index=1)  # Index to auto select column
-            ave_response = st.selectbox('Average Response column:', (col_header), index=2)  # Index to auto select column
+
+            # set selection columns
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                drug_name = st.selectbox('Drug Name:', (col_header))
+            with col2:
+                compound_conc = st.selectbox('Drug Concentration:', (col_header), index=1)  # Index to auto select column
+            with col3:
+                ave_response = st.selectbox('Average Response column:', (col_header), index=2)  # Index to auto select column
         else:
             drug_query = df
             col_header = drug_query.columns.to_list()
-            drug_name = st.selectbox('Drug Name:', (col_header))
-            compound_conc = st.selectbox('Drug Concentration:', (col_header))
-            ave_response = st.selectbox('Average Response column:', (col_header))
+
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                drug_name = st.selectbox('Drug Name:', (col_header))
+            with col2:
+                compound_conc = st.selectbox('Drug Concentration:', (col_header))
+            with col3:
+                ave_response = st.selectbox('Average Response column:', (col_header))
 
         # sidebar options
         units = st.sidebar.radio('Input Concentration Units',
