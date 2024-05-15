@@ -704,27 +704,29 @@ class Stats_Logic:
             elif subgroup_col:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col)
             else:
-                st.warning(f":red[🚨ERROR: Something wrong with {test}]🚨")
+                st.warning(f":red[🚨 ERROR: Something wrong with {test}]‼️")
 
         elif test == "Wilcoxon":
             if subgroup_col == 'None':
                 try:
                     stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col)
-                    st.warning(":red[🚨ERROR: Wilcoxon Test needs a subgroup column]🚨")
+                    st.warning(":red[🚨 ERROR: Wilcoxon Test needs a subgroup column]‼️")
                 except ValueError:
                     st.error(
-                        ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                        ":red[🚨 ERROR: The length of the groups in the Group Column are not equal for **Wilcoxon "
+                        "Test**‼️]")
                     stat_df = None
             elif subgroup_col:
                 try:
                     stat_df = stats.get_wilcoxon(value_col=dv_col, group_col=group_col, subgroup_col=subgroup_col)
                 except ValueError:
                     st.error(
-                        ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                        ":red[🚨 ERROR: The length of the groups in the Group Column are not equal for **Wilcoxon "
+                        "Test**‼️]")
                     stat_df = None
             else:
                 st.error(
-                    ":red[🚨ERROR: The length of the groups in the Group Column are not equal for Wilcoxon Test!!]🚨")
+                    ":red[🚨 ERROR: The length of the groups in the Group Column are not equal for **Wilcoxon Test**‼️]")
                 stat_df = None
 
         elif test == "Pairwise Mann-Whitney U":
@@ -740,7 +742,7 @@ class Stats_Logic:
                 stat_df = stats.get_pairwise_tests(value_col=dv_col, group_col=group_col, subject_col=subgroup_col,
                                                    parametric=False)
             else:
-                st.warning(f":red[🚨ERROR: Something wrong with {test}]🚨")
+                st.warning(f":red[🚨 ERROR: Something wrong with **{test}**‼️]")
         else:
             st.write(":red[Select Post-Hoc Test]")
 
