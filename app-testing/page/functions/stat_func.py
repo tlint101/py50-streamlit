@@ -161,13 +161,11 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
 
         if fig_type == "Swarm Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-            point_size = point_size
         else:
             point_size = None
 
         if fig_type == "Strip Plot":
             point_size = st.slider(label="Point Size", min_value=1.0, max_value=10.0, value=5.0, step=0.5)
-            point_size = point_size
         else:
             point_size = None
 
@@ -344,7 +342,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             """)
             pass
         elif subgroup_col == 'None':
-            st.write("what?")
+            st.write("subgroup_col == 'None' What?")
         else:
             # st.write("this is the else")  # for troubleshooting
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
@@ -398,7 +396,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             """)
             pass
         elif subgroup_col == 'None':
-            st.write("what?")
+            st.write("subgroup_col == 'None' What?")
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
@@ -451,7 +449,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             """)
             pass
         elif subgroup_col == 'None':
-            st.write("what?")
+            st.write("subgroup_col == 'None' What?")
         else:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
@@ -461,27 +459,59 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if color is None:
             color = "tab10"
 
-        # point_size = int(point_size)
-
-        if subgroup_col:
-            st.error(f"🚨 {fig_type} currently **NOT supporting** calculations with Subgroup Column‼️")
+        # todo fix point_size bug with swarmplot
+        if point_size is None:
+            point_size = 5
 
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
-            ax = sns.swarmplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
-                               order=group_order, palette=color)
+            ax = sns.swarmplot(data=selected_data, x=dv_col, y=group_col, hue=subgroup_col, orient=orientation,
+                               order=group_order, palette=color, size=point_size)
         else:
-            ax = sns.swarmplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                               order=group_order, palette=color)
+            ax = sns.swarmplot(data=selected_data, x=group_col, y=dv_col, hue=subgroup_col, orient=orientation,
+                               order=group_order, palette=color, size=point_size)
 
         # Conditional to plot figure
         if annotation:
-            if no_annotation is True:
+            # Only show the underlying sns plot
+            if no_annotation:
+                # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                               palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                               group_order=group_order, size=point_size)
+                try:
+                    plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                   palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                   group_order=group_order, size=point_size, hide_ns=ns_group)
+                except:
+                    st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
+                       """)
+        elif annotation and subgroup_col:
+            st.warning("""
+                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
+                       """)
+            plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order, size=point_size, hide_ns=ns_group)
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
+                       """)
+            pass
+            # ax = None
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
+        elif subgroup_col == 'None':
+            st.write("subgroup_col == 'None' What?")
         else:
             plot.swarmplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                            palette=color, orient=orientation, size=point_size)
@@ -493,9 +523,6 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if point_size is None:
             point_size = 5
 
-        if subgroup_col:
-            st.error(f"🚨 {fig_type} currently **NOT supporting** calculations with Subgroup Column‼️")
-
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.stripplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
@@ -506,43 +533,105 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            if no_annotation is True:
+            # Only show the underlying sns plot
+            if no_annotation:
+                # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                st.warning("""
-                            🚨 Annotations and Color options are not supported with Pairwise data with Subgroup Column‼️          
-                            **Suggest supplementing figure with the Matrix Plot below and turning off Plot Annotations**
-                                                       """)
-                plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                               palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                               group_order=group_order, size=point_size)
+                try:
+                    plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                   palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                   group_order=group_order, size=point_size, hide_ns=ns_group)
+                except:
+                    st.warning(f"""
+                                            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                                            Recommend using **Matrix Plot** Below          
+                                           """)
+        elif annotation and subgroup_col:
+            st.warning("""
+                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
+                       """)
+            plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order, size=point_size, hide_ns=ns_group)
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
+                       """)
+            pass
+            # ax = None
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
+        elif subgroup_col == 'None':
+            st.write("subgroup_col == 'None' What?")
         else:
             plot.stripplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                           palette=color, orient=orientation, size=point_size)
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order, size=point_size)
 
     elif fig_type == 'Boxen Plot':
-        if subgroup_col:
-            st.error(f"🚨 {fig_type} currently **NOT supporting** calculations with Subgroup Column‼️")
-
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.boxenplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
-                               order=group_order)
+                               order=group_order, hue=subgroup_col, palette=color)
         else:
             ax = sns.boxenplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                               order=group_order)
+                               order=group_order, hue=subgroup_col, palette=color)
 
         # Conditional to plot figure
         if annotation:
-            if no_annotation is True:
+            # Only show the underlying sns plot
+            if no_annotation:
+                # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                               palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                               group_order=group_order)
+                try:
+                    plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                   palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                   group_order=group_order)
+                except:
+                    st.warning(f"""
+                                🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                                Recommend using **Matrix Plot** Below          
+                                """)
+        elif annotation and subgroup_col:
+            st.warning("""
+            🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
+            """)
+            plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                            group_order=group_order)
+
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
+            # ax = None
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"""
+                       🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                       Recommend using **Matrix Plot** Below          
+                       """)
+            pass
+        elif subgroup_col == 'None':
+            st.write("subgroup_col == 'None' What?")
         else:
             plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                           palette=color, orient=orientation)
+                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                            group_order=group_order)
     return ax
 
 
