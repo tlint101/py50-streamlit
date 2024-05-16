@@ -305,8 +305,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         if annotation:
             # Only show the underlying sns plot
             if no_annotation:
-                pass
                 # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
+                pass
             else:
                 try:# st.write("if annotation and if no_annotation, and else")  # for troubleshooting
                     plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
@@ -321,9 +324,9 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             st.warning("""
                         🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
                        """)
-            st.write(group_order)
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                         palette=color, orient=orientation, color=color, group_order=group_order)
+                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                 group_order=group_order, whis=whisker, hide_ns=ns_group)
             # ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
             #                  order=group_order, whis=whisker, hue=subgroup_col)
 
@@ -351,23 +354,45 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.barplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
-                             order=group_order, errorbar=bars, capsize=capsize, hue=subgroup_col)
+                             order=group_order, errorbar=bars, capsize=capsize, hue=subgroup_col, palette=color)
         else:
             ax = sns.barplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                             order=group_order, hue=subgroup_col)
+                             order=group_order, errorbar=bars, capsize=capsize, hue=subgroup_col, palette=color)
 
         # Conditional to plot figure
         if annotation:
+            # Only show the underlying sns plot
             if no_annotation is True:
+                # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                st.warning(
-                    """🚨 Annotations and Color options are not supported with Pairwise data with Subgroup Column‼️""")
-                plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                             group_order=group_order, errorbar=bars, capsize=capsize)
-        elif subgroup_col:
-            st.warning("""🚨 Annotations not supported with Pairwise data with Subgroup Column‼️""")
+                try:
+                    plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                 palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                 group_order=group_order, errorbar=bars, capsize=capsize, hide_ns=ns_group)
+                except:
+                    st.warning(f"""
+                    🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                    Recommend using **Matrix Plot** Below          
+                    """)
+        elif annotation and subgroup_col:
+            st.warning("""
+            🚨 Annotations not supported with Pairwise data with Subgroup Column‼️
+            """)
+            plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                         palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                         group_order=group_order, errorbar=bars, capsize=capsize, hide_ns=ns_group)
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
+        elif subgroup_col == 'None':
+            st.write("what?")
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
