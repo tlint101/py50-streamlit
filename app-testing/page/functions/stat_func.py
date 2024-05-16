@@ -340,6 +340,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             Recommend using **Matrix Plot** Below          
             """)
             pass
+        elif subgroup_col == 'None':
+            st.write("what?")
         else:
             # st.write("this is the else")  # for troubleshooting
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
@@ -517,7 +519,7 @@ class Stats_Logic:
             with col2:
                 dv_col = st.selectbox('Dependent Variable:', col_header, index=2)  # Index to auto select column
             with col3:
-                subgroup_col = st.selectbox('Subgroup (Optional):', col_header, index=0,
+                subgroup_col = st.selectbox('Subgroup (Optional):', col_header, index=None,
                                             placeholder="None")  # Index to auto select column
         else:
             col_header = data.columns.tolist()
@@ -558,6 +560,10 @@ class Stats_Logic:
                     st.write(":green[🥳 Stat Results:]")
                     self.omnibus_results(dv_col, group_col, subgroup_col, selected_data, test)
 
+                # Link to pingouin
+                url_pingouin = 'https://pingouin-stats.org/build/html/guidelines.html'
+                st.write(":orange[Don't Know Where to Start? Try the [Pingouin Flowchart](%s)]" % url_pingouin)
+
         with col2:
             if omnibus:
                 if test:
@@ -578,6 +584,10 @@ class Stats_Logic:
                 test = st.radio(label="Available Post-Hoc Test:", options=post_hoc_tests, captions=captions, index=None)
                 if test is None:
                     st.write(":red[Please select a post-hoc test]")
+
+                # Link to pingouin
+                url_pingouin = 'https://pingouin-stats.org/build/html/guidelines.html'
+                st.write(":orange[Don't Know Where to Start? Try the [Pingouin Flowchart](%s)]" % url_pingouin)
 
         with col2:
             if post_hoc:
