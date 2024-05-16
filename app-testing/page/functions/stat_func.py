@@ -391,17 +391,19 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             Recommend using **Matrix Plot** Below          
             """)
             pass
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
         elif subgroup_col == 'None':
             st.write("what?")
         else:
             plot.barplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation)
 
-    # todo violin plot works fine with subgroup column?
     elif fig_type == 'Violin Plot':
-        if subgroup_col:
-            st.error(f"🚨 {fig_type} currently **NOT supporting** calculations with Subgroup Column‼️")
-
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.violinplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
@@ -412,15 +414,48 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         # Conditional to plot figure
         if annotation:
-            if no_annotation is True:
+            # Only show the underlying sns plot
+            if no_annotation:
+                # st.write("Only show underlying sns plot")  # for troubleshooting
+                pass
+            # Only show the underlying sns plot with sub columns
+            elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                                palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                                group_order=group_order, loc=loc)
+                try:  # st.write("if annotation and if no_annotation, and else")  # for troubleshooting
+                    plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                    palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                    group_order=group_order, loc=loc, hide_ns=ns_group)
+                except:
+                    st.warning(f"""
+                    🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                    Recommend using **Matrix Plot** Below          
+                    """)
+        elif annotation and subgroup_col:
+            st.warning("""
+                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
+                       """)
+            plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                            group_order=group_order, loc=loc, hide_ns=ns_group)
+        elif test_type in test_issue and subgroup_col:
+            st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
+                       """)
+            pass
+        elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
+        elif subgroup_col == 'None':
+            st.write("what?")
         else:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                            palette=color, orient=orientation)
+                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                            group_order=group_order, loc=loc, hide_ns=ns_group)
 
     elif fig_type == 'Swarm Plot':
         if color is None:
