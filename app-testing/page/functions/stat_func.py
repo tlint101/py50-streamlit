@@ -308,10 +308,15 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                 pass
                 # st.write("Only show underlying sns plot")  # for troubleshooting
             else:
-                # st.write("if annotation and if no_annotation, and else")  # for troubleshooting
-                plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                             group_order=group_order, whis=whisker, hide_ns=ns_group)
+                try:# st.write("if annotation and if no_annotation, and else")  # for troubleshooting
+                    plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
+                                 palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                                 group_order=group_order, whis=whisker, hide_ns=ns_group)
+                except:
+                    st.warning(f"""
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
+                       """)
         elif annotation and subgroup_col:
             st.warning("""
                         🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
@@ -324,11 +329,17 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         elif test_type in test_issue and subgroup_col:
             st.warning(f"""
-                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️          
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+                        Recommend using **Matrix Plot** Below          
                        """)
-            ax = None
+            pass
+            # ax = None
         elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
-            st.warning(f"🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️")
+            st.warning(f"""
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
+            Recommend using **Matrix Plot** Below          
+            """)
+            pass
         else:
             # st.write("this is the else")  # for troubleshooting
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
@@ -742,14 +753,14 @@ class Stats_Logic:
 
         if test == 'Tukey':
             if subgroup_col:
-                st.error(f":red[🚨 ERROR: {test} cannot process a Subgroup Column‼️]")
+                st.error(f":red[🚨 ERROR: {test} cannot process a pairwise test with a **Subgroup Column**‼️]")
                 stat_df = None
             else:
                 stat_df = stats.get_tukey(value_col=dv_col, group_col=group_col)
 
         elif test == 'Games-Howell':
             if subgroup_col:
-                st.error(f":red[🚨 ERROR: {test} cannot process a Subgroup Column‼️]")
+                st.error(f":red[🚨 ERROR: {test} cannot process a pairwise test with a **Subgroup Column**‼️]")
                 stat_df = None
             else:
                 stat_df = stats.get_gameshowell(value_col=dv_col, group_col=group_col)
