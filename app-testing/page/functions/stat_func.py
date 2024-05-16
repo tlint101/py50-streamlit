@@ -295,11 +295,11 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.boxplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
-                             order=group_order, whis=whisker, hue=subgroup_col)
+                             order=group_order, whis=whisker, hue=subgroup_col, palette=color)
 
         else:
             ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                             order=group_order, whis=whisker, hue=subgroup_col)
+                             order=group_order, whis=whisker, hue=subgroup_col, palette=color)
 
         # Conditional to plot figure
         if annotation:
