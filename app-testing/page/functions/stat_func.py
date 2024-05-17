@@ -177,10 +177,14 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
 
         # Bar plot error bars
         if fig_type == 'Bar Plot':
-            bar_type = ['sd', 'se', 'pi', 'ci']
-            types = {'sd': 'Standard Deviation', 'se': 'Standard Deviation', 'pi': 'Pi', 'ci': 'Ci'}
+            # Get type of error bars
+            bar_type = ['Standard Deviation', 'Standard Error', 'Percentile Interval', 'Confidence Interval']
+            types = {'Standard Deviation': 'sd', 'Standard Error': 'se', 'Percentile Interval': 'pi',
+                     'Confidence Interval': 'ci'}
             bars = st.selectbox(label="Error Bar:", options=bar_type, index=0, key=types)
+            bars = types.get(bars)
 
+            # Set capsize
             capsize = st.slider(label="Cap Size", min_value=0.0, max_value=1.0, value=0.1, step=0.1)
         else:
             bars = None
@@ -309,7 +313,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             elif no_annotation is True and subgroup_col is not None:
                 pass
             else:
-                try:# st.write("if annotation and if no_annotation, and else")  # for troubleshooting
+                try:  # st.write("if annotation and if no_annotation, and else")  # for troubleshooting
                     plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                                  palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                                  group_order=group_order, whis=whisker, hide_ns=ns_group)
@@ -324,7 +328,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                        """)
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                                 group_order=group_order, whis=whisker, hide_ns=ns_group)
+                         group_order=group_order, whis=whisker, hide_ns=ns_group)
             # ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
             #                  order=group_order, whis=whisker, hue=subgroup_col)
 
@@ -460,6 +464,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             color = "tab10"
 
         # todo fix point_size bug with swarmplot
+        # todo fix legend issue with swarmplot and stripplot. This only occurs with subgroup_col
         if point_size is None:
             point_size = 5
 
@@ -610,8 +615,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
             """)
             plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                            group_order=group_order)
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order)
 
         elif test_type in test_issue and subgroup_col:
             st.warning(f"""
@@ -630,8 +635,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
             st.write("subgroup_col == 'None' What?")
         else:
             plot.boxenplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                            palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                            group_order=group_order)
+                           palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
+                           group_order=group_order)
     return ax
 
 
@@ -1027,7 +1032,7 @@ class Stats_Logic:
             if subgroup_col is None:
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
             else:
-                st.write(":vluw[Warning: Subgroup Column not needed for calculation.]")
+                st.write(":blue[Warning: Subgroup Column not needed for calculation.]")
                 stat_df = stats.get_kruskal(value_col=dv_col, group_col=group_col)
 
         elif test == 'Cochran (Non-Parametric)':
