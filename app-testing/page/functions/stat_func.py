@@ -238,12 +238,10 @@ def _annotation(post_hoc_table, fig_type, selected_data, group_col, subgroup_col
             if pvalue == 'P-value':
                 pairs_select = None
                 pvalue = None
-            elif pvalue is str:
-                pvalue = [value.strip() for value in pvalue.split(',')]
             elif pvalue == "":
                 pvalue = None
             else:
-                pvalue = None
+                pvalue = [value.strip() for value in pvalue.split(',')]
         else:
             pvalue = None
 
@@ -350,7 +348,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         else:
             # st.write("this is the else")  # for troubleshooting
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
-                         palette=color, orient=orientation, color=color)
+                         palette=color, orient=orientation, color=color, pvalue_label=pvalue)
 
     elif fig_type == 'Bar Plot':
         # must call ax. Thus, will need to plot "twice".
