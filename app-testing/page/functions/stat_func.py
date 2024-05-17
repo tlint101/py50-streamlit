@@ -699,7 +699,8 @@ class Stats_Logic:
 
         # Run omnibus tests
         omnibus = st.toggle('Omnibus Tests')
-        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (Non-Parametric)', 'Cochran (Non-Parametric)',
+        omnibus_tests = ['ANOVA', 'Welch-ANOVA', 'Kruskal-Wallis (Non-Parametric)',
+                         'Cochran (Non-Parametric)',
                          'Friedman (Non-Parametric)']
 
         col1, col2 = st.columns(2)
@@ -979,7 +980,7 @@ class Stats_Logic:
             st.write(":red[Select Post-Hoc Test]")
 
         # Output table
-        st.data_editor(stat_df)
+        st.data_editor(stat_df, key='Post-Hoc')
         st.write(":red[NOTE: ]",
                  "Very small *p-values* may **appear as 0**. Please download .csv file to view specific value.")
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
@@ -1051,7 +1052,7 @@ class Stats_Logic:
         else:
             st.write(":red[Select Omnibus Test]")
 
-        st.data_editor(stat_df)
+        st.data_editor(stat_df, key='Omnibus')
         self.download_csv(stat_df, file_name=f'py50_{test}.csv')
 
     def run_normality(self, dv_col, group_col, selected_data):
