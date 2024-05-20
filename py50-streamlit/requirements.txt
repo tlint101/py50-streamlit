@@ -6,5 +6,5 @@ pandas
 numpy
 matplotlib>=3.8.1
 lxml
-seaborn>=0.12
+seaborn
 py50==1.0.6
