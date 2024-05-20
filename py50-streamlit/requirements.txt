@@ -7,4 +7,4 @@ numpy
 matplotlib>=3.8.1
 lxml==4.6.2
 seaborn
-py50==1.0.4
+py50==1.0.5
