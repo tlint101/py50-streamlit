@@ -79,8 +79,3 @@ elif option == 'Paste Data':
     else:
         st.write("### Select Columns for Calculation")
         stats.stats_program(data=edited_df, paste=True)
-
-    # todo check why this should up twice?
-    # # Output table
-    # edited_df = st.data_editor(data, num_rows='dynamic')
-    # stats.download_button(edited_df, file_name='py50_stats.csv')
