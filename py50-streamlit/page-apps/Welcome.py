@@ -14,8 +14,10 @@ background-color: transparent;
 """
 st.markdown(links, unsafe_allow_html=True)
 
+image = 'img/py50_full.png'
+
 # Place logo image at top of page
-# st.image('img/py50_full.png', width=800)
+st.image(image, width=800)
 st.write('# Welcome to py50!')
 
 github = 'https://github.com/tlint101/py50'
