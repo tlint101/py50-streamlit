@@ -14,7 +14,7 @@ background-color: transparent;
 """
 st.markdown(links, unsafe_allow_html=True)
 
-image = 'img/py50_full.png'
+image = '/mount/src/py50-streamlit/py50-streamlit/img/py50_full.png'
 
 # Place logo image at top of page
 st.image(image, width=800)
