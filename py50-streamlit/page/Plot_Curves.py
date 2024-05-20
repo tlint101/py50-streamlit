@@ -19,8 +19,6 @@ background-color: transparent;
 """
 st.markdown(links, unsafe_allow_html=True)
 
-# Todo double check functions on streamlit app
-
 """
 Page layout begins below
 """
