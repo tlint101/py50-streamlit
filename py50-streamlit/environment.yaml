@@ -12,6 +12,6 @@ dependencies:
   - numpy
   - matplotlib>=3.8.1
   - lxml==4.6.2
-  - seaborn
+  - seaborn==0.12.2
   - py50==1.0.6
 
