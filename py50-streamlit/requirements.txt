@@ -5,6 +5,6 @@ streamlit-activities-menu
 pandas
 numpy
 matplotlib>=3.8.1
-lxml==4.6.2
+lxml
 seaborn>=0.12
 py50==1.0.6
