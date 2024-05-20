@@ -12,4 +12,4 @@ dependencies:
   - numpy
   - matplotlib>=3.8.1
   - lxml
-  - seaborn>=0.12
+  - seaborn>=0.11
