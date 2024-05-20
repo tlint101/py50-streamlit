@@ -1,20 +1,30 @@
 # Services for multipage Streamlit app
-- name: 'Home'
+-
+  name: 'Home'
   description: 'Home Page'
   url: "Home.py"
 
-- name: 'Calculator'
-  description: 'Calculator'
+-
+  name: 'IC50 Calculator'
+  description: 'IC50 Calculator'
   url: "Calculator.py"
 
-- name: 'Plot Curves'
+-
+  name: 'Plot Curves'
   description: 'Plot Dose Response Curves'
   url: "Plot_Curves.py"
 
-- name: 'Molecule Drawer'
+-
+  name: 'Statistics Calculator'
+  description: 'Calculate Statistics From Data'
+  url: "Statistics.py"
+
+-
+  name: 'Molecule Drawer'
   description: 'Draw Chemical Structures'
   url: "Molecule Drawer.py"
 
-- name: 'Changelog'
+-
+  name: 'Changelog'
   description: 'Report Changes'
   url: "Changelog.py"
