@@ -999,6 +999,10 @@ class Stats_Logic:
         # Initialize Stats() class
         stats = Stats(selected_data)
 
+        # confirm that selected data is in correct format
+        if not pd.api.types.is_numeric_dtype(selected_data[dv_col]):
+            st.write(":red[🚨 Dependent Variable is not Numeric‼️]")
+
         # Omnibus test
         if test == 'ANOVA':
             if subgroup_col is None or subgroup_col == 'None':
