@@ -33,6 +33,8 @@ def run():
         disabled=False
     )
 
+    st.write(os.path.abspath(page_path))
+
     if page_option == 'Home':
         st.sidebar.markdown(":green[**Select page above to get started!**]")
     else:
