@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 # Adjust hyperlink colorscheme
 links = """<style>
@@ -13,6 +14,10 @@ background-color: transparent;
 }
 """
 st.markdown(links, unsafe_allow_html=True)
+
+# # for streamlit cloud, need to use this file path Commented code will be tested in the future
+# working_directory = os.path.dirname(os.path.abspath(__file__))
+# image = os.path.join(working_directory, "img/py50_full.png")
 
 image = '/mount/src/py50-streamlit/py50-streamlit/img/py50_full.png'
 
