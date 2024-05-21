@@ -1,4 +1,4 @@
-streamlit ==1.29.0
+streamlit
 streamlit-extras
 streamlit_ketcher
 streamlit-activities-menu
@@ -7,4 +7,5 @@ numpy  >=1.26.2
 matplotlib >=3.8.1
 lxml
 seaborn
-py50
+py50-statannotations >= 0.0.1
+py50-streamlit-support >= 0.0.1
