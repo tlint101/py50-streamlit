@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "py50-streamlit-support"
+version = "0.0.2"
+description = "Modified py50 for streamlit use"
+authors = ["Tony E. Lin <tonyelin@tmu.edu.tw>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9,<3.13"
+pandas = "==1.5.0"
+numpy = ">=1.26.2"
+matplotlib = ">=3.8.1"
+scipy = ">=1.11.3"
+seaborn = "<=0.12.2"
+scikit-posthocs = ">=0.7.0"
+pingouin = ">=0.5.4"
+py50-statannotations = ">=0.0.1"
+# Change for future release
+# statannotations = ">=0.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
