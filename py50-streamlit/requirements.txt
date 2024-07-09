@@ -8,4 +8,4 @@ matplotlib >=3.8.1
 lxml
 seaborn
 py50-statannotations >= 0.0.1
-py50-streamlit-support >= 0.0.1
+py50-streamlit-support >= 0.0.2
