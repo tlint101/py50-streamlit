@@ -27,7 +27,7 @@ main py50 repository [here](https://github.com/tlint101/py50).
 Additional features are being implemented for the upcoming py50 v1.0.0 release. My current "To-Do" for the py50-streamlit
 will be as follows:
 
-- [ ] Update py50 Streamlit to version 1.0.0
+- [X] Update py50 Streamlit to version 1.0.0
 - [ ] Refactor code for application maintainability
 
 ## Citation
