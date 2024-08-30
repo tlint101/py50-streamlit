@@ -13,4 +13,4 @@ dependencies:
   - matplotlib>=3.8.1
   - lxml
   - seaborn
-  - py50==1.0.6
+  - py50==1.0.8
