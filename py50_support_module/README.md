@@ -15,3 +15,14 @@ installation of the newer versions of Seaborn.
 
 **Note:** These fixes are for the streamlit version only. For those interested in using py50 python code, please see the 
 mian repository [here](https://github.com/tlint101/py50).
+
+Install using the following:
+```
+pip install py50_streamlit_support
+```
+
+or:
+
+```
+pip install py50_streamlit_support -U
+```
