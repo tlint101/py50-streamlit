@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py50-streamlit-support"
-version = "0.0.3"
+version = "0.0.4"
 description = "Modified py50 for streamlit use"
 authors = ["Tony E. Lin <tonyelin@tmu.edu.tw>"]
 license = "MIT"
