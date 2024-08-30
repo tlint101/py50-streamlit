@@ -90,7 +90,6 @@ class Calc_Logic:
                 response_col=ave_response,
                 input_units=units,
             )
-            print(absolute)
 
             st.markdown("## Calculated Results")
 
