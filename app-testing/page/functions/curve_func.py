@@ -5,8 +5,8 @@ Logic for curve fitting
 import streamlit as st
 import io
 from matplotlib import pyplot as plt
-from py50.plotcurve import PlotCurve
-from py50.plot_settings import CBMARKERS, CBPALETTE
+from py50_streamlit_support.plotcurve import PlotCurve
+from py50_streamlit_support.plotcurve import CBMARKERS, CBPALETTE
 
 
 class Plot_Logic:
@@ -135,7 +135,7 @@ class Plot_Logic:
         Function for xscale options
         """
         if xoptions is True:
-            conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+            conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
             xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
             xscale_ticks_input = st.sidebar.text_input(
                 label="Set X-Axis boundaries (i.e. the exponent)",
@@ -528,6 +528,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)
@@ -635,7 +637,7 @@ class Plot_Logic:
             # xscale settings
             xoptions = st.sidebar.checkbox(label="X Axis Options")
             if xoptions is True:
-                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
                 xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
                 xscale_ticks_input = st.sidebar.text_input(
                     label="Set X-Axis boundaries",
@@ -748,6 +750,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)
@@ -848,7 +852,7 @@ class Plot_Logic:
             # xscale settings
             xoptions = st.sidebar.checkbox(label="X Axis Options")
             if xoptions is True:
-                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
                 xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
                 xscale_ticks_input = st.sidebar.text_input(
                     label="Set X-Axis boundaries",
@@ -971,6 +975,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)

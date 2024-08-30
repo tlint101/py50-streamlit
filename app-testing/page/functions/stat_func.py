@@ -9,7 +9,7 @@ from itertools import combinations
 from collections import namedtuple
 from matplotlib import pyplot as plt
 import seaborn as sns
-from py50.stats import Plots, Stats
+from py50_streamlit_support.stats import Plots, Stats
 
 # namedtuple to extract test for plotting
 MODEL = namedtuple("STAT_TEST", ["test_selection", "py50_test"])
