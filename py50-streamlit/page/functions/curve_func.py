@@ -6,7 +6,7 @@ import streamlit as st
 import io
 from matplotlib import pyplot as plt
 from py50_streamlit_support.plotcurve import PlotCurve
-from py50_streamlit_support.plot_settings import CBMARKERS, CBPALETTE
+from py50_streamlit_support.plotcurve import CBMARKERS, CBPALETTE
 
 
 class Plot_Logic:
@@ -15,16 +15,16 @@ class Plot_Logic:
 
     @staticmethod
     def label_plot_options(
-            self,
-            label_options,
-            plot_title_size,
-            plot_title,
-            font,
-            axis_fontsize,
-            xlabel,
-            ylabel,
-            ymax,
-            ymin,
+        self,
+        label_options,
+        plot_title_size,
+        plot_title,
+        font,
+        axis_fontsize,
+        xlabel,
+        ylabel,
+        ymax,
+        ymin,
     ):
         """
         Function to organize plat label  options
@@ -135,7 +135,7 @@ class Plot_Logic:
         Function for xscale options
         """
         if xoptions is True:
-            conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+            conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
             xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
             xscale_ticks_input = st.sidebar.text_input(
                 label="Set X-Axis boundaries (i.e. the exponent)",
@@ -263,7 +263,9 @@ class Plot_Logic:
             with col2:
                 compound_conc = st.selectbox("Drug Concentration:", col_header, index=1)
             with col3:
-                ave_response = st.selectbox("Average Response column:", col_header, index=2)
+                ave_response = st.selectbox(
+                    "Average Response column:", col_header, index=2
+                )
         else:
             drug_query = df
             col_header = drug_query.columns.to_list()
@@ -456,7 +458,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                              "Y-Axis, input must match x-axis units)",
+                        "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )
@@ -528,6 +530,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)
@@ -635,7 +639,7 @@ class Plot_Logic:
             # xscale settings
             xoptions = st.sidebar.checkbox(label="X Axis Options")
             if xoptions is True:
-                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
                 xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
                 xscale_ticks_input = st.sidebar.text_input(
                     label="Set X-Axis boundaries",
@@ -748,6 +752,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)
@@ -848,7 +854,7 @@ class Plot_Logic:
             # xscale settings
             xoptions = st.sidebar.checkbox(label="X Axis Options")
             if xoptions is True:
-                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM"])
+                conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
                 xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
                 xscale_ticks_input = st.sidebar.text_input(
                     label="Set X-Axis boundaries",
@@ -908,7 +914,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                              "Y-Axis, input must match x-axis units)",
+                        "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )
@@ -971,6 +977,8 @@ class Plot_Logic:
             with col1:
                 if conc_unit == "nM":
                     st.markdown("Plot scale will be in nM")
+                elif conc_unit == "pM":
+                    st.markdown("Plot scale will be in pM")
                 else:
                     st.markdown("Plot scale will be in µM")
                 st.pyplot(figure)

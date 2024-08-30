@@ -455,7 +455,7 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         else:
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
-                            group_order=group_order, loc='inside', hide_ns=ns_group)
+                            group_order=group_order, loc=loc, hide_ns=ns_group)
 
     elif fig_type == 'Swarm Plot':
         if color is None:
