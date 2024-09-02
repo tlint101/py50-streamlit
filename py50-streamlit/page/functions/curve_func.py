@@ -4,16 +4,16 @@ Logic for curve fitting
 
 import streamlit as st
 import io
+import pandas as pd
 from matplotlib import pyplot as plt
 from py50_streamlit_support.plotcurve import PlotCurve
 from py50_streamlit_support.plotcurve import CBMARKERS, CBPALETTE
 
 
 class Plot_Logic:
-    def __init__(self):
-        pass
+    def __init__(self, data: pd.DataFrame = None):
+        self.df = data
 
-    @staticmethod
     def label_plot_options(
         self,
         label_options,
@@ -41,8 +41,8 @@ class Plot_Logic:
             axis_fontsize = axis_fontsize if axis_fontsize else 14
 
             # Y axis limit
-            ymax = int(ymax) if ymax is not None else None
-            ymin = int(ymin) if ymin is not None else None
+            ymax = 0 if ymax is None else int(ymax)
+            ymin = 0 if ymin is None else int(ymin)
 
             # Return options
             options = {
@@ -134,6 +134,7 @@ class Plot_Logic:
         """
         Function for xscale options
         """
+        global conc_unit, xscale, xscale_ticks
         if xoptions is True:
             conc_unit = st.sidebar.radio("Set units of X Axis", ["µM", "nM", "pM"])
             xscale = st.sidebar.checkbox(label="X Axis Linear Scale")
@@ -250,6 +251,11 @@ class Plot_Logic:
         """
         Code for plotting. there are if/else statements nested within depending on the 3 types of plots
         """
+
+        # instantiate logic
+        global fig_type
+        logic = Plot_Logic()
+
         # Logic based on paste or CSV input
         if paste:
             # Select columns for calculation
@@ -350,6 +356,7 @@ class Plot_Logic:
 
             # Label Options
             label_options = st.sidebar.checkbox(label="Labels")
+
             if label_options is True:
                 # call in label options
                 (
@@ -362,10 +369,10 @@ class Plot_Logic:
                     ylabel,
                     ymax,
                     ymin,
-                ) = Plot_Logic.label_options_true(label_options=label_options)
+                ) = logic.label_options_true(label_options=label_options)
 
                 # logic based on plot options above
-                Plot_Logic.label_plot_options(
+                logic.label_plot_options(
                     label_options,
                     plot_title_size,
                     plot_title,
@@ -559,6 +566,7 @@ class Plot_Logic:
 
             # Label Options
             label_options = st.sidebar.checkbox(label="Labels")
+            plot_logic = Plot_Logic()
             if label_options is True:
                 # call in label options
                 (
@@ -571,10 +579,10 @@ class Plot_Logic:
                     ylabel,
                     ymax,
                     ymin,
-                ) = Plot_Logic.label_options_true(label_options=label_options)
+                ) = plot_logic.label_options_true(label_options=label_options)
 
                 # logic based on plot options above
-                Plot_Logic.label_plot_options(
+                plot_logic.label_plot_options(
                     label_options,
                     plot_title_size,
                     plot_title,
@@ -765,6 +773,9 @@ class Plot_Logic:
 
         # Grid options
         elif fig_type == "Grid Plot":
+            # instantiate logic
+            plot_logic = Plot_Logic()
+
             # Confirm DataFrame only contains multiple drugs
             if len(df_calc[drug_name].unique()) > 1:
                 name = df_calc[drug_name].unique()
@@ -796,7 +807,7 @@ class Plot_Logic:
                 ) = Plot_Logic.label_options_true(label_options=label_options)
 
                 # logic based on plot options above
-                Plot_Logic.label_plot_options(
+                plot_logic.label_plot_options(
                     label_options,
                     plot_title_size,
                     plot_title,
