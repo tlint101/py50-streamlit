@@ -47,10 +47,19 @@ Code begins below
 
 calc = Calc_Logic()
 
+def data_upload():
+    file = st.file_uploader('Upload .csv file')
+    return file
+
+def data_paste(data):
+    data_info = st.data_editor(data, num_rows='dynamic')
+    return data_info
+
 # Data input
 if option == 'Upload CSV File':
     # Upload the CSV file
-    uploaded_file = st.file_uploader('Upload .csv file')
+    # uploaded_file = st.file_uploader('Upload .csv file')
+    uploaded_file = data_upload()
 
     # Check if a CSV file has been uploaded
     if uploaded_file is not None:
@@ -72,7 +81,8 @@ elif option == 'Paste Data':
     # Make dummy dataframe
     data = pd.DataFrame([{"Drug Name": '', 'Concentration': '', 'Response': ''}, ])
 
-    edited_df = st.data_editor(data, num_rows='dynamic')
+    # edited_df = st.data_editor(data, num_rows='dynamic')
+    edited_df = data_paste(data)
 
     if (edited_df == '').all().all():
         st.write('Table is currently empty')
