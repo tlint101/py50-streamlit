@@ -2,15 +2,14 @@ name: py50-streamlit
 
 channels:
   - conda-forge
-
+  - defaults
 dependencies:
-  - streamlit==1.36.0
-  - streamlit-extras
-  - streamlit_ketcher
-  - streamlit-activities-menu
-  - pandas
-  - numpy
-  - matplotlib>=3.8.1
-  - lxml
-  - seaborn
-  - py50==1.0.8
+  - python==3.10
+  - pip
+  - pip:
+    - streamlit==1.36.0
+    - streamlit-extras
+    - streamlit_ketcher
+    - streamlit-activities-menu
+    - lxml
+    - py50==1.0.9
