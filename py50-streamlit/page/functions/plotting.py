@@ -2,6 +2,6 @@
 functions for plotting
 """
 
-from py50_streamlit_support.stats import Plots
+from py50.stats import Plots
 
 plots = Plots()

@@ -6,8 +6,8 @@ import streamlit as st
 import io
 import pandas as pd
 from matplotlib import pyplot as plt
-from py50_streamlit_support.plotcurve import PlotCurve
-from py50_streamlit_support.plotcurve import CBMARKERS, CBPALETTE
+from py50 import PlotCurve
+from py50 import CBMARKERS, CBPALETTE
 
 
 class Plot_Logic:

@@ -3,8 +3,7 @@ Functions for Calculator
 """
 
 import streamlit as st
-from py50_streamlit_support import Calculator
-
+from py50 import Calculator
 
 class Calc_Logic:
     def __init__(self):

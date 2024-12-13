@@ -2,6 +2,6 @@
 Functions for statistic calculations
 """
 
-from py50_streamlit_support.stats import Stats
+from py50.stats import Stats
 
 stats = Stats()
