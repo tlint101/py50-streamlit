@@ -4,8 +4,7 @@ streamlit_ketcher
 streamlit-activities-menu
 pandas
 numpy
-matplotlib ==3.8.1
+matplotlib
 lxml
 seaborn
-py50-statannotations >= 0.0.1
-py50-streamlit-support == 0.0.5
+py50 >= 1.0.9
