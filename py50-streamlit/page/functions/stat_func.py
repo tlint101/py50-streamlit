@@ -757,8 +757,9 @@ class Stats_Logic:
 
         # Plot post-hoc results
         plot = st.toggle('Generate Plot')
-        if plot:
 
+        if plot:
+            plt.close()
             # Warning to select post-hoc test before plot generation
             if post_hoc is False:
                 st.write(":red[🚨Select a Post-Hoc test first‼️]")
@@ -1083,7 +1084,7 @@ class Stats_Logic:
                 self.download_csv(normality, index=True, file_name='py50_normality.csv')
 
             with col2:
-                normality_plot = st.toggle('Plot for Normality')
+                normality_plot = st.toggle('Generate Normality Plot')
                 if normality_plot:
 
                     # Sub columns for title input
