@@ -295,16 +295,15 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         # must call ax. Thus, will need to plot "twice".
         if orientation == 'h':
             ax = sns.boxplot(data=selected_data, x=dv_col, y=group_col, orient=orientation,
-                             order=group_order, whis=whisker, hue=subgroup_col, palette=color)
-
+                             order=group_order, whis=1.5, hue=subgroup_col, palette=color)
         else:
             ax = sns.boxplot(data=selected_data, x=group_col, y=dv_col, orient=orientation,
-                             order=group_order, whis=whisker, hue=subgroup_col, palette=color)
+                             order=group_order, whis=1.5, hue=subgroup_col, palette=color)
 
         # Conditional to plot figure
         if annotation:
             # Only show the underlying sns plot
-            if no_annotation:
+            if no_annotation is True:
                 # st.write("Only show underlying sns plot")  # for troubleshooting
                 pass
             # Only show the underlying sns plot with sub columns
@@ -317,12 +316,12 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
                                  group_order=group_order, whis=whisker, hide_ns=ns_group)
                 except:
                     st.warning(f"""
-                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
-                        Recommend using **Matrix Plot** Below          
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️
+                        Recommend using **Matrix Plot** Below
                        """)
         elif annotation and subgroup_col:
             st.warning("""
-                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️          
+                        🚨 Annotations not supported with Pairwise data with Subgroup Column‼️
                        """)
             plot.boxplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                          palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
@@ -332,15 +331,15 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
 
         elif test_type in test_issue and subgroup_col:
             st.warning(f"""
-                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
-                        Recommend using **Matrix Plot** Below          
+                        🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️
+                        Recommend using **Matrix Plot** Below
                        """)
             pass
             # ax = None
         elif test_type == 'tukey' and subgroup_col or test_type == 'gameshowell' and subgroup_col:
             st.warning(f"""
-            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️  
-            Recommend using **Matrix Plot** Below          
+            🚨 Annotations not supported with **{test_issue[test_type]}** test with Subgroup Column‼️
+            Recommend using **Matrix Plot** Below
             """)
             pass
         elif subgroup_col == 'None':
@@ -453,6 +452,8 @@ def _plot_fig(annotation, color, dv_col, fig_type, group_col, group_order, orien
         elif subgroup_col == 'None':
             st.write("subgroup_col == 'None' What?")
         else:
+            if loc is None:
+                loc = 'inside'
             plot.violinplot(test=test_type, group_col=group_col, value_col=dv_col, subgroup_col=subgroup_col,
                             palette=color, orient=orientation, pvalue_label=pvalue, pairs=pairs_select,
                             group_order=group_order, loc=loc, hide_ns=ns_group)
@@ -773,6 +774,7 @@ class Stats_Logic:
 
     def plot(self, dv_col, group_col, subgroup_col, selected_data, test, fig_type, post_hoc_table):
         global test_type
+
         plot = Plots(selected_data)
 
         if test:
