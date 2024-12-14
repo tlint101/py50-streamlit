@@ -5,6 +5,7 @@ Functions for Calculator
 import streamlit as st
 from py50 import Calculator
 
+
 class Calc_Logic:
     def __init__(self):
         pass
@@ -81,14 +82,10 @@ class Calc_Logic:
             st.data_editor(df_calc, num_rows="dynamic")
 
             # Calculate IC50
-            data = Calculator(df_calc)
+            data = Calculator(data=df_calc, name_col=drug_name, concentration_col=compound_conc,
+                              response_col=ave_response)
 
-            absolute = data.calculate_absolute_ic50(
-                name_col=drug_name,
-                concentration_col=compound_conc,
-                response_col=ave_response,
-                input_units=units,
-            )
+            absolute = data.calculate_absolute_ic50(input_units=units)
 
             st.markdown("## Calculated Results")
 
