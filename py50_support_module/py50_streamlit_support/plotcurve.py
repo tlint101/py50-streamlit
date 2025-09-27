@@ -43,9 +43,8 @@ class PlotCurve:
         ]
         return filtered_df
 
-    # todo rename function to curve_plot
     # todo fix verbose issue - box info will also print
-    def single_curve_plot(
+    def curve_plot(
         self,
         concentration_col: str = None,
         response_col: str = None,

@@ -15,16 +15,16 @@ class Plot_Logic:
         self.df = data
 
     def label_plot_options(
-        self,
-        label_options,
-        plot_title_size,
-        plot_title,
-        font,
-        axis_fontsize,
-        xlabel,
-        ylabel,
-        ymax,
-        ymin,
+            self,
+            label_options,
+            plot_title_size,
+            plot_title,
+            font,
+            axis_fontsize,
+            xlabel,
+            ylabel,
+            ymax,
+            ymin,
     ):
         """
         Function to organize plat label  options
@@ -307,7 +307,8 @@ class Plot_Logic:
         )
         st.data_editor(df_calc, num_rows="dynamic")
 
-        plot_data = PlotCurve(drug_query)
+        plot_data = PlotCurve(data=drug_query, name_col=drug_name, concentration_col=compound_conc,
+                              response_col=ave_response)
 
         if len(conditions) != 3:
             pass
@@ -465,7 +466,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                        "Y-Axis, input must match x-axis units)",
+                              "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )
@@ -497,7 +498,7 @@ class Plot_Logic:
             )
 
             # py50 plot function
-            figure = plot_data.single_curve_plot(
+            figure = plot_data.curve_plot(
                 concentration_col=compound_conc,
                 response_col=ave_response,
                 plot_title=plot_title,
@@ -925,7 +926,7 @@ class Plot_Logic:
                     # Logic for specific concentration
                     x_concentration = st.sidebar.number_input(
                         label="Optional: Highlight By Specific Concentration (will override "
-                        "Y-Axis, input must match x-axis units)",
+                              "Y-Axis, input must match x-axis units)",
                         value=None,
                         placeholder=None,
                     )

@@ -497,7 +497,7 @@ class Plot_Logic:
             )
 
             # py50 plot function
-            figure = plot_data.single_curve_plot(
+            figure = plot_data.curve_plot(
                 concentration_col=compound_conc,
                 response_col=ave_response,
                 plot_title=plot_title,
