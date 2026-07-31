@@ -4,8 +4,7 @@
 
 # py50: Generate Dose-Response Curves
 
-![Static Badge](https://img.shields.io/badge/py50_v1.0.0-13406E)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![py50](https://img.shields.io/pypi/v/py50.svg?label=py50&style=flat)](https://pypi.org/project/py50/)
 [![DOI](https://zenodo.org/badge/716929963.svg)](https://zenodo.org/doi/10.5281/zenodo.10183912)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_red.svg)](https://py50-app.streamlit.app) 
 
