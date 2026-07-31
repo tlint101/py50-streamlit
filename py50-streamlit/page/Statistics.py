@@ -1,86 +1,37 @@
 import streamlit as st
 import pandas as pd
 from page.functions.stat_func import Stats_Logic
-
-# # Set page config
-# st.set_page_config(page_title='py50: Plot Curves', page_icon='📈', layout='centered')
-
-# Adjust hyperlink colorscheme
-links = """<style>
-a:link , a:visited{
-color: 3081D0;
-background-color: transparent;
-}
-
-a:hover,  a:active {
-color: forestgreen;
-background-color: transparent;
-}
-"""
-st.markdown(links, unsafe_allow_html=True)
-
-'''
-Page layout begins below
-'''
+from page.functions.statistics_page_helpers import (
+    load_page_css,
+    render_page_title,
+    render_data_input,
+    render_statistics_page,
+)
 
 tutorial = 'https://github.com/tlint101/py50/blob/main/tutorials/006_statistics_quickstart.ipynb'
 datasets = 'https://github.com/tlint101/py50-streamlit/tree/main/dataset'
-st.markdown('# Statistics Calculator')
-st.write('The Statistics Calculator provides 3 columns:')
-st.write('- Group')
-st.write('- Dependent Variable')
-st.write('- Subgroup')
-st.write('Depending on the test selected, only Group and Dependent Variable is needed. Subgroup can be ignored.')
-st.write('For more information on how the statistics calculator works in py50, see the tutorial [here](%s)' % tutorial)
-st.write('Sample datasets can be found [here](%s)' % datasets)
-st.write('')
 
-st.markdown('## Select an option to get started:')
+# Load page styling
+load_page_css()
+
+# Render page title and description
+render_page_title(tutorial, datasets)
+
+# User selects data input method
 option = st.radio(
     'Paste Data or upload .csv file',
     ('Paste Data', 'Upload CSV File'))
 
-"""
-Code begins below
-"""
-
 stats = Stats_Logic()
 
-# Data input
-if option == 'Upload CSV File':
-    # Upload the CSV file
-    uploaded_file = st.file_uploader('Upload .csv file')
+# Handle data input
+uploaded_file, paste = render_data_input(option)
 
-    # Check if a CSV file has been uploaded
-    if uploaded_file is not None:
-        # Read the CSV file into a DataFrame
-        data = pd.read_csv(uploaded_file)
-        st.write('## Input Table')
-        st.data_editor(data, num_rows='dynamic', key='uploaded_output')  # visualize dataframe in streamlit app
-    else:
-        # Display a message if no CSV file has been uploaded
-        st.warning('Please upload a .csv file.')
+if uploaded_file is not None:
+    # Render statistics page for uploaded file
+    render_statistics_page(stats, uploaded_file, paste=False)
 
-    # Select columns for calculation
-    if uploaded_file is not None:  # nested in if/else to remove initial traceback error
-        st.write("### Select Columns for Calculation")
-        stats.stats_program(data=data, paste=False)
-
-# Editable DataFrame
 elif option == 'Paste Data':
-    st.markdown('### Paste Data in Table:')
-    # Make dummy dataframe
-    data = pd.DataFrame([{"Group": '', 'Dependent Variable': '', 'Subgroup': ''}, ])
-
-    edited_df = st.data_editor(data, num_rows='dynamic', key='paste_data')
-
-    if (edited_df == '').all().all():
-        st.write('Table is currently empty')
-    else:
-        st.write("### Select Columns for Calculation")
-        stats.stats_program(data=edited_df, paste=True)
-
-    # todo check why this should up twice?
-    # # Output table
-    # edited_df = st.data_editor(data, num_rows='dynamic')
-    # stats.download_button(edited_df, file_name='py50_stats.csv')
+    # Render statistics page for pasted data
+    rendered_df, paste = render_data_input(option)
+    render_statistics_page(stats, rendered_df, paste=True)

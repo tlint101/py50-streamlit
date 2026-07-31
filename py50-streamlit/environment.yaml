@@ -7,9 +7,9 @@ dependencies:
   - python==3.10
   - pip
   - pip:
-    - streamlit==1.36.0
+    - streamlit==1.60.0
     - streamlit-extras
     - streamlit_ketcher
     - streamlit-activities-menu
     - lxml
-    - py50==1.0.9
+    - py50==1.1.0
